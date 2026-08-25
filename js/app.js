@@ -2645,7 +2645,7 @@ function przeliczBilety() {
 }
 
 // ==============================================================================
-// 8. MODUŁ: ROZGRYWKI
+// 8. MODUŁ: ROZGRYWKI (PEŁNA OBSŁUGA PUNKTÓW UJEMNYCH I DODATNICH)
 // ==============================================================================
 let activeGameId = null;
 let activeGamePlayers = [];
@@ -2812,11 +2812,11 @@ async function renderActiveGameRounds() {
       col.innerHTML = `
         <label class="small fw-bold text-muted">${pName}:</label>
         <input type="number" 
+               inputmode="numeric"
                class="form-control form-control-sm round-score-input" 
                data-player="${pName}" 
                value="${val}" 
-               onfocus="if(this.value==='0') this.value='';" 
-               onblur="if(this.value==='') this.value='0';">
+               placeholder="0">
       `;
       currentInputs.appendChild(col);
     });
@@ -2830,7 +2830,9 @@ if (btnNextRound) {
     
     for (const inp of inputs) {
       const pName = inp.getAttribute("data-player");
-      const pts = parseInt(inp.value, 10) || 0;
+      const valStr = inp.value.trim();
+      const pts = (valStr === "" || isNaN(parseInt(valStr, 10))) ? 0 : parseInt(valStr, 10);
+
       await supabaseClient.from("gamescores").update({ points: pts })
         .eq("game_id", activeGameId)
         .eq("round_number", currentRoundNumber)
@@ -2859,7 +2861,9 @@ if (btnFinishGame) {
     const inputs = document.querySelectorAll(".round-score-input");
     for (const inp of inputs) {
       const pName = inp.getAttribute("data-player");
-      const pts = parseInt(inp.value, 10) || 0;
+      const valStr = inp.value.trim();
+      const pts = (valStr === "" || isNaN(parseInt(valStr, 10))) ? 0 : parseInt(valStr, 10);
+
       await supabaseClient.from("gamescores").update({ points: pts })
         .eq("game_id", activeGameId)
         .eq("round_number", currentRoundNumber)
