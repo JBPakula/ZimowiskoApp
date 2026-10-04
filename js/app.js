@@ -20,14 +20,14 @@ let malzenstwaMapa = {};
 let ekipyMapa = {};
 
 // ==============================================================================
-// 0.1 INICJALIZACJA
+// 0.1 INICJALIZACJA I OBSŁUGA SPLASH
 // ==============================================================================
 function initApp() {
   const savedUser = localStorage.getItem("zimowisko_user");
   const savedUserId = localStorage.getItem("zimowisko_user_id");
   const savedTeam = localStorage.getItem("zimowisko_team");
 
-  // Jeśli użytkownik jest już zalogowany w przeglądarce
+  // Jeśli sesja istnieje w pamięci przeglądarki – pomijamy splash i logowanie
   if (savedUser && savedUserId) {
     currentUser = savedUser;
     currentUserId = parseInt(savedUserId);
@@ -39,13 +39,24 @@ function initApp() {
     return;
   }
 
-  // Niezalogowany: formularz logowania jest widoczny natychmiast
-  document.getElementById("authScreen").style.display = "block";
-  document.getElementById("appSection").style.display = "none";
-  document.getElementById("loginFormCard").style.display = "block";
+  // Niezalogowany: logo wisi na środku przez 1.5 sekundy, potem zsuwa się i pokazuje formularz
+  startSplashSequence();
 
   pobierzKursyWalut();
   pobierzUzytkownikowIMalzenstwa();
+}
+
+function startSplashSequence() {
+  const logoWrapper = document.getElementById("splashLogoWrapper");
+  const loginCard = document.getElementById("loginFormCard");
+
+  if (!logoWrapper || !loginCard) return;
+
+  setTimeout(() => {
+    logoWrapper.classList.remove("splash-centered");
+    logoWrapper.classList.add("splash-bottom");
+    loginCard.style.display = "block";
+  }, 1500);
 }
 
 // ==============================================================================

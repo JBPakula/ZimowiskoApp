@@ -33,13 +33,13 @@
     <div id="navRightSection" class="d-flex align-items-center gap-2"></div>
   </nav>
 
+ <!-- ============================================================================== -->
+  <!-- MODUŁ: EKRAN STARTOWY / SPLASH & LOGOWANIE -->
   <!-- ============================================================================== -->
-  <!-- EKRAN STARTOWY / LOGOWANIE -->
-  <!-- ============================================================================== -->
-  <div id="authScreen" class="container py-3" style="max-width: 400px;">
+  <div id="authScreen" class="container py-3" style="max-width: 400px; min-height: calc(100vh - 120px); display: flex; flex-direction: column; justify-content: center; align-items: center;">
     
-    <!-- 1. Formularz Logowania: domyślnie widoczny w HTML, brak blokady JS -->
-    <div id="loginFormCard" class="card shadow-sm border-0 rounded-4 w-100 p-4 mb-3">
+    <!-- 1. Formularz Logowania (startowo ukryty, pojawia się po zakończeniu splash) -->
+    <div id="loginFormCard" class="card shadow-sm border-0 rounded-4 w-100 p-4 mb-3" style="display: none;">
       <h5 class="fw-bold text-center mb-3" style="color: var(--navy);">Logowanie</h5>
       
       <div class="mb-3">
@@ -83,13 +83,13 @@
       <div id="resetFeedback" class="alert small mt-3 py-2 text-center" style="display: none;"></div>
     </div>
 
-    <!-- 3. Logo Zimowisko umieszczone pod formularzem -->
-    <div id="splashLogoWrapper" class="text-center mt-2">
-      <img src="assets/logo_full.png" alt="Logo Zimowisko" id="splashLogoImg" class="img-fluid" style="max-height: 160px;" onerror="this.src='assets/logo_min.png'">
+    <!-- 3. Logo Zimowisko: startowo na środku (splash-centered), po 1.5s zjeżdża w dół (splash-bottom) -->
+    <div id="splashLogoWrapper" class="splash-centered">
+      <img src="assets/logo_full.png" alt="Logo Zimowisko" id="splashLogoImg" class="img-fluid" onerror="this.src='assets/logo_min.png'">
     </div>
 
   </div>
-
+  
   <!-- ============================================================================== -->
   <!-- GŁÓWNA APLIKACJA -->
   <!-- ============================================================================== -->
