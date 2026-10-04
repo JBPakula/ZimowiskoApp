@@ -223,7 +223,213 @@ if (formDailyLog) {
   };
 }
 
+// ==============================================================================
+// 3. MODUŁ: WYDATKI (PRZEPISANY 1:1 ZE SPRAWDZONEGO WZORCA)
+// ==============================================================================
 
+// Rozwijanie / zwijanie formularza nowego wydatku
+window.toggleNewCostForm = function() {
+  const box = document.getElementById("newCostFormCollapse");
+  const icon = document.getElementById("iconNewCostToggle");
+  if (!box) return;
+  
+  if (box.style.display === "none" || box.style.display === "") {
+    box.style.display = "block";
+    if (icon) icon.className = "bi bi-chevron-up text-muted fs-5";
+  } else {
+    box.style.display = "none";
+    if (icon) icon.className = "bi bi-chevron-down text-muted fs-5";
+  }
+};
+
+// Rozwijanie / zwijanie archiwum
+window.toggleArchivedCosts = function() {
+  const box = document.getElementById("archivedCostsList");
+  const icon = document.getElementById("iconArchivedCostsToggle");
+  if (!box) return;
+  
+  const isHidden = (box.style.display === "none" || box.style.display === "");
+  box.style.display = isHidden ? "block" : "none";
+  if (icon) icon.className = isHidden ? "bi bi-chevron-up text-muted" : "bi bi-chevron-down text-muted";
+};
+
+// Pomocnicza funkcja czyszcząca tekst z HTML
+function escapeHtml(str) {
+  if (!str) return "";
+  return String(str).replace(/[&<>"']/g, m => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[m]);
+}
+
+// Konfiguracja checkboxów wyboru ekip i osób
+function setupBorrowerCheckboxes() {
+  const usersBox = document.getElementById("borrowerUsersCheckboxes");
+  if (usersBox && usersBox.children.length === 0) {
+    const defaultUsers = ["Asia", "Maciek", "Kacper", "Natalia", "Gosia", "Artur", "Pola", "Tosia", "Kasia", "Janek", "Henio"];
+    const usersList = Object.keys(ekipyMapa).length > 0 ? Object.keys(ekipyMapa) : defaultUsers;
+    usersBox.innerHTML = usersList.map(u => 
+      `<label class="badge bg-white text-dark border p-1 small me-1 mb-1"><input type="checkbox" class="user-cb" value="${u}"> ${u}</label>`
+    ).join("");
+  }
+
+  const rTeams = document.getElementById("bModeTeams");
+  const rUsers = document.getElementById("bModeUsers");
+  const boxTeams = document.getElementById("boxBorrowerTeams");
+  const boxUsers = document.getElementById("boxBorrowerUsers");
+
+  const update = () => {
+    if (boxTeams) boxTeams.style.display = (rTeams && rTeams.checked) ? "block" : "none";
+    if (boxUsers) boxUsers.style.display = (rUsers && rUsers.checked) ? "block" : "none";
+  };
+
+  ["bModeAll", "bModeTeams", "bModeUsers"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.onchange = update;
+  });
+}
+
+// Pobieranie i renderowanie listy wydatków z bazy Supabase
+async function loadCosts() {
+  const container = document.getElementById("costsList");
+  const archivedContainer = document.getElementById("archivedCostsList");
+  if (!container) return;
+
+  container.innerHTML = "<div class='text-muted small py-2 text-center'>Ładowanie wydatków...</div>";
+  setupBorrowerCheckboxes();
+
+  if (!supabaseClient) {
+    container.innerHTML = "<div class='alert alert-warning small'>Brak poprawnego połączenia z Supabase. Sprawdź klucze API.</div>";
+    return;
+  }
+
+  const { data, error } = await supabaseClient
+    .from("costs")
+    .select("*")
+    .eq("deleted", false)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Błąd pobierania z tabeli costs:", error);
+    container.innerHTML = `<div class='alert alert-danger small'>Błąd ładowania danych: ${error.message}</div>`;
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    container.innerHTML = "<div class='text-muted small text-center p-3'>Brak wydatków w bazie. Rozwiń formularz powyżej i dodaj pierwszy! 💶</div>";
+    if (archivedContainer) archivedContainer.innerHTML = "<div class='text-muted small text-center p-2'>Brak archiwum.</div>";
+    return;
+  }
+
+  const activeCosts = data.filter(c => !c.is_archived);
+  const archivedCosts = data.filter(c => c.is_archived);
+
+  // Renderowanie aktywnych wydatków
+  if (activeCosts.length === 0) {
+    container.innerHTML = "<div class='text-muted small text-center p-3'>Wszystkie wydatki są zarchiwizowane.</div>";
+  } else {
+    container.innerHTML = activeCosts.map(c => {
+      const rate = bazaKursow["EUR_PLN"] || 4.30;
+      const inPln = (c.currency === "EUR") ? `(~${(c.amount * rate).toFixed(2)} PLN)` : "";
+      return `
+        <div class="${c.is_private ? 'stado-card-private' : 'stado-card'}">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <div class="fw-bold">${c.is_private ? '🔒 [Prywatny] ' : ''}${escapeHtml(c.cost_name)}</div>
+              <div class="small text-muted mt-1">Płacił(a): <b>${escapeHtml(c.paid_by)}</b> ➔ Dla: <b>${escapeHtml(c.borrower || 'Wszyscy')}</b></div>
+              ${c.comment ? `<div class="small fst-italic text-secondary mt-1">${escapeHtml(c.comment)}</div>` : ''}
+            </div>
+            <div class="text-end">
+              <div class="fw-bold fs-6" style="color:var(--navy);">${parseFloat(c.amount).toFixed(2)} ${c.currency}</div>
+              <div class="text-muted" style="font-size:0.75rem;">${inPln}</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  // Renderowanie zarchiwizowanych
+  if (archivedContainer) {
+    archivedContainer.innerHTML = archivedCosts.length === 0 
+      ? "<div class='text-muted small text-center p-2'>Brak zarchiwizowanych wydatków.</div>"
+      : archivedCosts.map(c => `
+          <div class="p-2 border-bottom small text-muted d-flex justify-content-between">
+            <span>${escapeHtml(c.cost_name)} (${escapeHtml(c.paid_by)})</span>
+            <b>${parseFloat(c.amount).toFixed(2)} ${c.currency}</b>
+          </div>
+        `).join("");
+  }
+}
+
+// Obsługa zapisu wydatku
+const formCost = document.getElementById("formCost");
+if (formCost) {
+  formCost.onsubmit = async (e) => {
+    e.preventDefault();
+
+    if (!supabaseClient) {
+      alert("Błąd: Niepoprawny klucz lub brak połączenia z bazą Supabase.");
+      return;
+    }
+
+    const name = document.getElementById("costName").value.trim();
+    const amountVal = document.getElementById("costAmount").value;
+    const amount = parseFloat(amountVal);
+    const currency = document.getElementById("costCurrency").value;
+    const comment = document.getElementById("costComment").value.trim();
+    const isPrivate = document.getElementById("costIsPrivate").checked;
+
+    if (!name || isNaN(amount) || amount <= 0) {
+      alert("Podaj poprawną nazwę i kwotę wydatku.");
+      return;
+    }
+
+    let borrower = "Wszyscy";
+    if (!isPrivate) {
+      const mode = document.querySelector("input[name='borrowerMode']:checked")?.value;
+      if (mode === "teams") {
+        const checked = Array.from(document.querySelectorAll(".team-cb:checked")).map(cb => cb.value);
+        borrower = checked.length > 0 ? checked.join(", ") : "Wszyscy";
+      } else if (mode === "users") {
+        const checked = Array.from(document.querySelectorAll(".user-cb:checked")).map(cb => cb.value);
+        borrower = checked.length > 0 ? checked.join(", ") : "Wszyscy";
+      }
+    } else {
+      borrower = "Tylko dla mnie";
+    }
+
+    const payload = {
+      created_by: currentUserId || null,
+      paid_by: currentUser || "Asia",
+      amount: amount,
+      currency: currency,
+      cost_name: name,
+      borrower: borrower,
+      comment: comment || null,
+      is_private: isPrivate,
+      settled_by: [],
+      deleted: false,
+      is_archived: false
+    };
+
+    const { data, error } = await supabaseClient
+      .from("costs")
+      .insert([payload])
+      .select();
+
+    if (error) {
+      console.error("Błąd zapisu do Supabase:", error);
+      alert("Błąd zapisu wydatku:\n" + error.message);
+      return;
+    }
+
+    // Reset formularza i odświeżenie widoku
+    formCost.reset();
+    toggleNewCostForm();
+    await loadCosts();
+    if (typeof loadWallet === "function") loadWallet();
+  };
+}
 
 // ==============================================================================
 // 4. MODUŁ: PORTFEL (KOMPENSATA PER EKIPA DLA 3 RODZIN)
