@@ -3,24 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Wakacje Stada</title>
+  <title>Zimowisko 2027</title>
   
   <!-- Manifest PWA -->
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#8B0000">
+  <meta name="theme-color" content="#0F172A">
   
   <!-- Bootstrap 5 CSS & Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   
-<!-- Google Font: Comic Neue (z pełnym wsparciem polskich znaków Ą, Ę, Ż, Ź) -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
+  <!-- Google Fonts: Inter & Balsamiq Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Balsamiq+Sans:ital,wght@0,400;0,700;1,400;1,700&subset=latin,latin-ext&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Balsamiq+Sans:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  
   <!-- Styl bazowy + Cache-Buster CSS -->
   <link rel="stylesheet" href="css/style.css">
   <script>
@@ -33,329 +30,262 @@
 <body>
 
   <!-- ============================================================================== -->
-  <!-- 0. EKRAN LOGOWANIA -->
+  <!-- 0. EKRAN LOGOWANIA (TYMCZASOWO WYŁĄCZONY I ZAKOMENTOWANY) -->
   <!-- ============================================================================== -->
+  <!--
   <div id="loginSection" class="container py-5" style="display: none; max-width: 420px;">
     <div class="card shadow-lg p-4 border-0 rounded-4 mt-4">
       <div class="text-center mb-3">
-        <img src="assets/logo.png" alt="Logo" class="img-fluid" style="max-height: 90px; object-fit: contain;" onerror="this.style.display='none'">
+        <img src="assets/logo_full.png" alt="Logo" class="img-fluid" style="max-height: 120px; object-fit: contain;">
       </div>
-      <h2 class="text-center fw-bold mb-4" style="color: var(--burgund);">Wakacje Stada</h2>
+      <h2 class="text-center fw-bold mb-4" style="color: var(--navy);">Zimowisko</h2>
       <div class="mb-3">
         <label class="form-label fw-bold">Kim jesteś?</label>
-        <input type="text" id="loginUsernameInput" class="form-control" list="userSuggestions" placeholder="Wpisz lub wybierz imię" autocomplete="off">
+        <input type="text" id="loginUsernameInput" class="form-control" list="userSuggestions" placeholder="Wybierz lub wpisz imię" autocomplete="off">
         <datalist id="userSuggestions"></datalist>
       </div>
       <div class="mb-3">
-        <label class="form-label fw-bold">Hasło:</label>
-        <input type="password" id="loginPasswordInput" class="form-control" placeholder="Wpisz hasło">
+        <label class="form-label fw-bold">PIN / Hasło:</label>
+        <input type="password" id="loginPasswordInput" class="form-control" placeholder="Wpisz lub ustal swój kod PIN">
+        <small class="text-muted" style="font-size: 11px;">Jeśli logujesz się pierwszy raz, wpisany kod zostanie Twoim hasłem.</small>
       </div>
-      <button id="btnLogin" class="btn btn-burgund w-100 py-2 mt-2">Wejdź do aplikacji</button>
+      <button id="btnLogin" class="btn btn-navy w-100 py-2 mt-2">Wejdź do Zimowiska</button>
       <div id="loginError" class="alert alert-danger mt-3 py-2 text-center" style="display: none;"></div>
     </div>
   </div>
+  -->
 
   <!-- ============================================================================== -->
   <!-- GŁÓWNY WIDOK APLIKACJI -->
   <!-- ============================================================================== -->
-  <div id="appSection" style="display: none;">
-    <!-- Górny Pasek: Logo + Tytuł (kliknięcie = powrót do Pulpitu) i przycisk wylogowania -->
+  <div id="appSection">
+    <!-- Górny Pasek: Logo linearne + Tytuł i wylogowanie -->
     <nav class="navbar bg-white shadow-sm sticky-top px-3 py-2 border-bottom">
-      <div class="d-flex align-items-center" style="cursor: pointer;" onclick="switchTab('dashboard')" title="Przejdź do pulpitu">
-        <img src="assets/logo.png" alt="Logo" class="nav-app-logo me-2" style="height: 32px; width: 32px; object-fit: contain; mix-blend-mode: multiply;" onerror="this.style.display='none'">
-        <span id="navTitle" class="navbar-brand mb-0 h1 fw-bold fs-6" style="color: var(--burgund);">
-          Wakacje Stada
+      <div class="d-flex align-items-center" style="cursor: pointer;" onclick="switchTab('dashboard')" title="Pulpit">
+        <img src="assets/logo_min.png" alt="Logo" class="nav-app-logo me-2" onerror="this.src='assets/logo_full.png'">
+        <span id="navTitle" class="navbar-brand mb-0 h1 fw-bold fs-6" style="color: var(--navy);">
+          Zimowisko 2027
         </span>
       </div>
-      <button id="btnLogout" class="btn btn-sm btn-outline-secondary border-0 p-1" title="Wyloguj się">
-        <i class="bi bi-box-arrow-right fs-5 text-muted"></i>
-      </button>
+      <div class="d-flex align-items-center gap-2">
+        <span class="badge bg-light text-dark border px-2 py-1" id="navUserBadge" style="font-size: 11px;">Asia</span>
+      </div>
     </nav>
 
     <!-- Główny kontener widoków -->
-    <main class="container my-2" style="max-width: 500px;">
+    <main class="container my-2" style="max-width: 520px;">
       
       <!-- ========================================================================== -->
-      <!-- 0. PULPIT GŁÓWNY (LANDING PAGE) -->
+      <!-- 0. PULPIT GŁÓWNY (DASHBOARD) -->
       <!-- ========================================================================== -->
       <section id="tab-dashboard" class="app-tab dashboard-container">
-        <!-- Góra: Awatar + Powitanie z lewej, Data i odliczanie z prawej -->
+        <!-- Góra: Awatar, Powitanie, Odliczanie do wyjazdu -->
         <div class="d-flex justify-content-between align-items-center my-2 px-2">
           <div class="d-flex align-items-center">
-            <img id="dashboardUserAvatar" src="" class="rounded-circle me-2" style="width: 42px; height: 42px; object-fit: cover; border: 2px solid var(--burgund); background-color: #F4F1EA;" alt="Avatar">
-            <h4 class="fw-bold mb-0" style="color: var(--burgund);">Szia, <span id="welcomeUserName">Stado</span>!</h4>
+            <img id="dashboardUserAvatar" src="assets/avatars/Asia.jpg" class="rounded-circle me-2" style="width: 44px; height: 44px; object-fit: cover; border: 2px solid var(--navy); background-color: #E2E8F0;" alt="Avatar" onerror="this.src='https://ui-avatars.com/api/?name=Asia&background=0F172A&color=fff'">
+            <div>
+              <h5 class="fw-bold mb-0" style="color: var(--navy);">Cześć, <span id="welcomeUserName">Asia</span>!</h5>
+              <small class="text-muted" style="font-size: 11px;">Horizont Resort, Stará Lesná</small>
+            </div>
           </div>
-          <div class="text-end" id="dashboardDateBox" style="color: #6c757d; font-size: 0.85rem; line-height: 1.2;"></div>
+          <div class="text-end" id="dashboardDateBox" style="font-size: 0.82rem; line-height: 1.2;"></div>
         </div>
 
-        <!-- Siatka Kafelków (8 Modułów w parach) -->
+        <!-- Siatka Kafelków Głównych -->
         <div class="row g-2 mt-1">
-          <!-- Rząd 1: Mapa & Forum -->
+          <!-- Rząd 1: Plan Dnia & Kamery / Pogoda -->
           <div class="col-6">
-            <div class="card dashboard-card shadow-sm h-100" onclick="switchTab('tab-map')">
+            <div class="card dashboard-card shadow-sm h-100" onclick="switchTab('tab-plan')">
               <div class="card-body text-center py-2 px-1">
-                <div class="fw-bold tile-title">Mapa</div>
-                <div class="tile-desc text-muted">Punkty i trasy</div>
+                <div class="fs-4 mb-1">⛷️</div>
+                <div class="fw-bold tile-title">Plan i Stoki</div>
+                <div class="tile-desc text-muted">Gdzie dziś jeździmy</div>
               </div>
             </div>
           </div>
           <div class="col-6">
-            <div class="card dashboard-card shadow-sm h-100 position-relative" onclick="switchTab('tab-forum')">
+            <div class="card dashboard-card shadow-sm h-100" onclick="switchTab('tab-weather')">
               <div class="card-body text-center py-2 px-1">
-                <div class="fw-bold tile-title">
-                  Forum <span id="dashboardForumBadge" class="badge bg-danger rounded-pill ms-1" style="display: none; font-size: 0.65rem;">Nowe</span>
-                </div>
-                <div class="tile-desc text-muted">Wątki i ustalenia</div>
+                <div class="fs-4 mb-1">🏔️</div>
+                <div class="fw-bold tile-title">Kamery i Śnieg</div>
+                <div class="tile-desc text-muted">Łomnica i Szczyrbskie</div>
               </div>
             </div>
           </div>
 
-          <!-- Rząd 2: Wydatki & Zakupy -->
+          <!-- Rząd 2: Wydatki & Portfel -->
           <div class="col-6">
             <div class="card dashboard-card shadow-sm h-100" onclick="switchTab('tab-costs')">
               <div class="card-body text-center py-2 px-1">
+                <div class="fs-4 mb-1">💶</div>
                 <div class="fw-bold tile-title">Wydatki</div>
-                <div class="tile-desc text-muted">Wpisywanie kwot</div>
-              </div>
-            </div>
-          </div>
-          <div class="col-6">
-            <div class="card dashboard-card shadow-sm h-100" onclick="switchTab('tab-shopping')">
-              <div class="card-body text-center py-2 px-1">
-                <div class="fw-bold tile-title">Zakupy</div>
-                <div class="tile-desc text-muted">Wspólne listy</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Rząd 3: Kantor & Portfel -->
-          <div class="col-6">
-            <div class="card dashboard-card shadow-sm h-100" onclick="switchTab('tab-exchange')">
-              <div class="card-body text-center py-2 px-1">
-                <div class="fw-bold tile-title">Kantor</div>
-                <div class="tile-desc text-muted">HUF / PLN / EUR</div>
+                <div class="tile-desc text-muted">Wpisywanie EUR / PLN</div>
               </div>
             </div>
           </div>
           <div class="col-6">
             <div class="card dashboard-card shadow-sm h-100" onclick="switchTab('tab-wallet')">
               <div class="card-body text-center py-2 px-1">
+                <div class="fs-4 mb-1">🏦</div>
                 <div class="fw-bold tile-title">Portfel</div>
-                <div class="tile-desc text-muted">Kto komu ile wisi</div>
+                <div class="tile-desc text-muted">Kompensata ekip</div>
               </div>
             </div>
           </div>
 
-          <!-- Rząd 4: Razem za bilety & Rozgrywki -->
+          <!-- Rząd 3: Zakupy & Forum -->
           <div class="col-6">
-            <div class="card dashboard-card shadow-sm h-100" onclick="switchTab('tab-calc')">
+            <div class="card dashboard-card shadow-sm h-100" onclick="switchTab('tab-shopping')">
               <div class="card-body text-center py-2 px-1">
-                <div class="fw-bold tile-title">Razem za bilety</div>
-                <div class="tile-desc text-muted">Kalkulator biletów</div>
+                <div class="fs-4 mb-1">🛒</div>
+                <div class="fw-bold tile-title">Zakupy</div>
+                <div class="tile-desc text-muted">Wspólna lista</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="card dashboard-card shadow-sm h-100 position-relative" onclick="switchTab('tab-forum')">
+              <div class="card-body text-center py-2 px-1">
+                <div class="fs-4 mb-1">💬</div>
+                <div class="fw-bold tile-title">
+                  Forum <span id="dashboardForumBadge" class="badge bg-danger rounded-pill ms-1" style="display: none; font-size: 0.65rem;">Nowe</span>
+                </div>
+                <div class="tile-desc text-muted">Ustalenia i wątki</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rząd 4: Kantor & Gry wieczorne -->
+          <div class="col-6">
+            <div class="card dashboard-card shadow-sm h-100" onclick="switchTab('tab-exchange')">
+              <div class="card-body text-center py-2 px-1">
+                <div class="fs-4 mb-1">💱</div>
+                <div class="fw-bold tile-title">Kantor</div>
+                <div class="tile-desc text-muted">EUR ➔ PLN</div>
               </div>
             </div>
           </div>
           <div class="col-6">
             <div class="card dashboard-card shadow-sm h-100" onclick="switchTab('tab-games')">
               <div class="card-body text-center py-2 px-1">
+                <div class="fs-4 mb-1">🎲</div>
                 <div class="fw-bold tile-title">Rozgrywki</div>
-                <div class="tile-desc text-muted">Gramy w gry</div>
+                <div class="tile-desc text-muted">Gry wieczorne</div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- 5. WIERSZ: PAMIĘTNIKI Z WAKACJI -->
+        <!-- 5. WIERSZ: KRONIKA ZE STOKU -->
         <div class="col-12 mt-2">
           <div class="card py-2 px-3 text-center border shadow-sm rounded-4 stado-dashboard-card" 
-               style="cursor: pointer;" 
+               style="cursor: pointer; background: rgba(255,255,255,0.95);" 
                onclick="switchTab('tab-diary')">
-            <div class="fw-bold" style="color: var(--burgund); font-size: 1rem; line-height: 1.2;">🌟 Pamiętniki z wakacji ☀️</div>
-            <div class="text-muted small" style="font-size: 11px;">Zdjęcia, cytaty i dramy z wyjazdu 🕶️</div>
+            <div class="fw-bold" style="color: var(--navy); font-size: 1rem; line-height: 1.2;">❄️ Kronika ze Stoku 📸</div>
+            <div class="text-muted small" style="font-size: 11px;">Zdjęcia, złote myśli i dramy z wyjazdu</div>
           </div>
         </div>
       </section>
 
       <!-- ========================================================================== -->
-      <!-- 1. MODUŁ: MAPA -->
+      <!-- 1. MODUŁ: PLAN DNIA & ZAPISKI ZE STOKU -->
       <!-- ========================================================================== -->
-      <section id="tab-map" class="app-tab" style="display: none;">
+      <section id="tab-plan" class="app-tab" style="display: none;">
         <div class="d-flex align-items-center justify-content-between mb-3">
-          <h4 class="fw-bold mb-0">🗺️ Mapa</h4>
+          <h4 class="fw-bold mb-0" style="color: var(--navy);">⛷️ Plan Dnia i Stoki</h4>
           <button class="btn btn-sm btn-outline-secondary" onclick="switchTab('dashboard')"><i class="bi bi-arrow-left"></i> Wróć</button>
         </div>
 
-        <div id="mapContainer" style="height: 360px; width: 100%; border-radius: 14px;" class="shadow-sm mb-2"></div>
-
-        <!-- Przyciski nawigacyjne -->
-        <div class="row g-2 mb-2">
-          <div class="col-6">
-            <button id="btnMyLocation" class="btn btn-outline-primary btn-sm w-100 py-1" style="font-size: 0.82rem;">
-              <i class="bi bi-crosshair me-1"></i> Moja lokalizacja
-            </button>
-          </div>
-          <div class="col-6">
-            <button id="btnCenterHome" class="btn btn-outline-dark btn-sm w-100 py-1" style="font-size: 0.82rem;">
-              🏠 Dom (Ámbitus)
-            </button>
-          </div>
-          <div class="col-12">
-            <button id="btnToggleRadar" class="btn btn-sm btn-light border w-100 py-1 d-flex align-items-center justify-content-center gap-2" style="font-size: 0.8rem;">
-              <span id="radarStatusDot" class="rounded-circle bg-secondary" style="width: 8px; height: 8px; display: inline-block;"></span>
-              <span id="radarStatusText">Radar Stada w trasie: <b>Wyłączony</b></span>
-            </button>
+        <!-- Stały harmonogram hotelowy / stokowy -->
+        <div class="card p-3 border-0 shadow-sm rounded-4 mb-3 border-start border-4 border-primary bg-white">
+          <h6 class="fw-bold mb-2" style="color: var(--navy);"><i class="bi bi-clock-history me-1"></i> Ramowy rytm dnia (Horizont Resort)</h6>
+          <div class="small" style="line-height: 1.6;">
+            <div>🍳 <b>07:30 - 09:30</b> Śniadanie w hotelu</div>
+            <div>🎿 <b>08:30 - 15:30</b> Wyciągi narciarskie (Tatrzańska Łomnica)</div>
+            <div>👶 <b>10:00 - 12:00</b> Szkółka narciarska dzieci</div>
+            <div>🧖‍♀️ <b>16:00 - 19:00</b> Wellness & Sauny w Horizont Resort</div>
+            <div>🍲 <b>18:00 - 20:30</b> Obiadokolacja w hotelu</div>
           </div>
         </div>
 
-        <!-- Wyszukiwarka i filtry kategorii -->
-        <div class="card p-2 border-0 shadow-sm rounded-4 mb-3">
-          <input type="text" id="mapSearchInput" class="form-control form-control-sm mb-2" placeholder="🔍 Szukaj atrakcji lub adresu...">
-          <div class="d-flex gap-1 overflow-x-auto pb-1" id="mapFilterBadges">
-            <button class="btn btn-sm btn-outline-secondary px-2 py-1" data-cat="all">Wszystkie</button>
-            <button class="btn btn-sm btn-burgund px-2 py-1 active-filter" data-cat="Termy">Termy</button>
-            <button class="btn btn-sm btn-outline-secondary px-2 py-1" data-cat="Zwiedzanie">Zwiedzanie</button>
-            <button class="btn btn-sm btn-outline-secondary px-2 py-1" data-cat="Jedzenie">Jedzenie</button>
-            <button class="btn btn-sm btn-outline-secondary px-2 py-1" data-cat="Inne">Inne</button>
-          </div>
-        </div>
-
-        <!-- Spis miejsc -->
-        <div class="card p-3 border-0 shadow-sm rounded-4 mb-4">
-          <h6 class="fw-bold mb-2" style="color: var(--burgund);">📍 Spis miejsc</h6>
-          <div id="mapPlacesList" class="list-group list-group-flush"></div>
-        </div>
-
-        <!-- Modal dodawania nowego punktu na mapie -->
-        <div class="modal fade" id="modalAddMapPoint" tabindex="-1">
-          <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content rounded-4 border-0 shadow">
-              <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title fw-bold" style="color: var(--burgund);">➕ Dodaj nowe miejsce</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <!-- Formularz dodawania wpisu ze stoku -->
+        <div class="card p-3 border-0 shadow-sm rounded-4 mb-3">
+          <h6 class="fw-bold mb-2" style="color: var(--navy);">➕ Gdzie dziś jeździliśmy?</h6>
+          <form id="formDailyLog">
+            <div class="row g-2 mb-2">
+              <div class="col-6">
+                <label class="small fw-bold text-muted">Data:</label>
+                <input type="date" id="dailyLogDate" class="form-control form-control-sm" required>
               </div>
-              <div class="modal-body">
-                <form id="formAddMapPoint">
-                  <input type="hidden" id="newPointLat">
-                  <input type="hidden" id="newPointLng">
-                  
-                  <div class="mb-2">
-                    <label class="small fw-bold text-muted">Nazwa miejsca:</label>
-                    <input type="text" id="newPointName" class="form-control form-control-sm" required placeholder="np. Winiarnia u Istvána">
-                  </div>
-                  <div class="mb-2">
-                    <label class="small fw-bold text-muted">Kategoria:</label>
-                    <select id="newPointCategory" class="form-select form-select-sm">
-                      <option value="Termy">Termy</option>
-                      <option value="Zwiedzanie" selected>Zwiedzanie</option>
-                      <option value="Jedzenie">Jedzenie</option>
-                      <option value="Inne">Inne</option>
-                    </select>
-                  </div>
-                  <div class="mb-3">
-                    <label class="small fw-bold text-muted">Adres / krótki opis (opcjonalnie):</label>
-                    <input type="text" id="newPointAddress" class="form-control form-control-sm" placeholder="np. Eger, Dolina Pięknej Pani">
-                  </div>
-                  <button type="submit" class="btn btn-burgund btn-sm w-100 py-2">Zapisz na mapie</button>
-                </form>
+              <div class="col-6">
+                <label class="small fw-bold text-muted">Ośrodek / Stok:</label>
+                <select id="dailyLogResort" class="form-select form-select-sm">
+                  <option value="Tatrzańska Łomnica" selected>Tatrzańska Łomnica</option>
+                  <option value="Jezioro Szczyrbskie (Štrbské Pleso)">Jezioro Szczyrbskie</option>
+                  <option value="Jakubkova Lúka (Stary Smokowiec)">Jakubkova Lúka</option>
+                  <option value="Dzień relaksu / Baseny">Dzień relaksu / Baseny</option>
+                  <option value="Inne">Inne miejsce...</option>
+                </select>
               </div>
             </div>
-          </div>
+            <div class="mb-2">
+              <label class="small fw-bold text-muted">Warunki i pogoda:</label>
+              <input type="text" id="dailyLogWeather" class="form-control form-control-sm" placeholder="np. Słońce, -4°C, twardy sztruks z rana">
+            </div>
+            <div class="mb-3">
+              <label class="small fw-bold text-muted">Wrażenia / Notatki:</label>
+              <textarea id="dailyLogNotes" class="form-control form-control-sm" rows="2" placeholder="Kto z kim jeździł, postępy dzieciaków, gdzie był obiad..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-navy btn-sm w-100 py-2">Zapisz dzień w dzienniku</button>
+          </form>
         </div>
+
+        <!-- Lista zarejestrowanych dni -->
+        <h6 class="fw-bold mb-2" style="color: var(--navy);">📋 Zapiski z turnusu:</h6>
+        <div id="dailyLogsList" class="mb-4"></div>
       </section>
 
       <!-- ========================================================================== -->
-      <!-- 2. MODUŁ: FORUM DYSKUSYJNE -->
+      <!-- 2. MODUŁ: KAMERY I ŚNIEG -->
       <!-- ========================================================================== -->
-      <section id="tab-forum" class="app-tab" style="display: none;">
-        <!-- Widok listy wątków -->
-        <div id="forumTopicsView">
-          <div class="d-flex align-items-center justify-content-between mb-3">
-            <h4 class="fw-bold mb-0">💬 Forum</h4>
-            <button class="btn btn-sm btn-outline-secondary" onclick="switchTab('dashboard')"><i class="bi bi-arrow-left"></i> Wróć</button>
-          </div>
+      <section id="tab-weather" class="app-tab" style="display: none;">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h4 class="fw-bold mb-0" style="color: var(--navy);">🏔️ Kamery i Warunki</h4>
+          <button class="btn btn-sm btn-outline-secondary" onclick="switchTab('dashboard')"><i class="bi bi-arrow-left"></i> Wróć</button>
+        </div>
 
-          <!-- Zwijany formularz nowego wątku -->
-          <div class="card border-0 shadow-sm rounded-4 mb-3" style="border-left: 5px solid var(--burgund) !important; background: #FFFFFF;">
-            <div class="p-3 d-flex justify-content-between align-items-center" style="cursor: pointer;" onclick="toggleNewTopicForm()">
-              <h6 class="fw-bold mb-0" style="color: var(--burgund);">➕ Załóż nowy wątek</h6>
-              <i id="iconNewTopicToggle" class="bi bi-chevron-down text-muted"></i>
-            </div>
-            
-            <div id="newTopicFormCollapse" class="px-3 pb-3" style="display: none;">
-              <hr class="mt-0 mb-3 text-muted">
-              <label class="small fw-bold text-muted mb-1">Tytuł wątku:</label>
-              <input type="text" id="newTopicTitle" class="form-control form-control-sm mb-2" placeholder="Wpisz temat dyskusji...">
-
-              <label class="small fw-bold text-muted mb-1">Treść pierwszej wiadomości:</label>
-              <!-- Pasek formatowania w nowym wątku -->
-              <div class="d-flex align-items-center gap-1 mb-2 p-1 bg-light rounded border">
-                <button type="button" class="btn btn-sm btn-outline-dark fw-bold px-2 py-0" onmousedown="event.preventDefault()" onclick="formatTopicDoc('bold')" title="Pogrubienie">B</button>
-                <button type="button" class="btn btn-sm btn-outline-dark fst-italic px-2 py-0" onmousedown="event.preventDefault()" onclick="formatTopicDoc('italic')" title="Kursywa">I</button>
-                <button type="button" class="btn btn-sm btn-outline-dark text-decoration-underline px-2 py-0" onmousedown="event.preventDefault()" onclick="formatTopicDoc('underline')" title="Podkreślenie">U</button>
-                <div class="vr mx-1"></div>
-                <label class="small fw-bold text-muted me-1" style="font-size: 11px;">Kolor:</label>
-                <input type="color" class="form-control form-control-color form-control-sm p-0 border-0" value="#4A1525" style="width: 26px; height: 26px; cursor: pointer;" onchange="formatTopicDoc('foreColor', this.value)" title="Wybierz kolor tekstu">
-              </div>
-
-              <div id="newTopicFirstPost" class="form-control mb-3 forum-editor-box" contenteditable="true" placeholder="Napisz pierwszy post otwierający dyskusję..."></div>
-              <button id="btnCreateTopic" class="btn btn-burgund btn-sm w-100 py-2">Opublikuj wątek</button>
-            </div>
-          </div>
-
-          <!-- Lista aktywnych wątków -->
-          <div class="card p-3 border-0 shadow-sm rounded-4 mb-3">
-            <h6 class="fw-bold mb-3" style="color: var(--burgund);">📑 Wątki dyskusyjne</h6>
-            <div id="forumTopicsList" class="list-group list-group-flush"></div>
-          </div>
-
-          <!-- Sekcja wątków archiwalnych -->
-          <div class="card p-3 border-0 shadow-sm rounded-4 mb-4">
-            <div class="d-flex justify-content-between align-items-center" style="cursor: pointer;" onclick="toggleArchivedTopics()">
-              <h6 class="fw-bold mb-0 text-muted" style="font-size: 0.9rem;">📦 Wątki archiwalne</h6>
-              <i id="iconArchivedToggle" class="bi bi-chevron-down text-muted"></i>
-            </div>
-            <div id="forumArchivedTopicsList" class="list-group list-group-flush mt-2" style="display: none;"></div>
+        <div class="card p-3 border-0 shadow-sm rounded-4 mb-3 border-start border-4 border-info">
+          <h6 class="fw-bold mb-1" style="color: var(--navy);">🎿 Tatrzańska Łomnica (Tatranská Lomnica)</h6>
+          <p class="small text-muted mb-2">Główny ośrodek tuż obok Starej Leśnej. Kolejki na Skalnaté Pleso i Łomnicki Szczyt.</p>
+          <div class="d-flex gap-2">
+            <a href="https://www.vt.sk/pl/resort-i-uslugi/kamery-internetowe" target="_blank" class="btn btn-sm btn-outline-primary flex-fill">
+              📹 Kamery na żywo (GOPASS)
+            </a>
+            <a href="https://www.vt.sk/pl/gory/zima/stan-tras-i-wyciagow" target="_blank" class="btn btn-sm btn-outline-secondary flex-fill">
+              ❄️ Czynne wyciągi
+            </a>
           </div>
         </div>
 
-        <!-- Widok pojedynczego wątku -->
-        <div id="forumSingleTopicView" style="display: none;">
-          <div class="d-flex align-items-center justify-content-between mb-3">
-            <button class="btn btn-sm btn-outline-secondary" onclick="showTopicsList()"><i class="bi bi-arrow-left"></i> Wróć do wątków</button>
-            <div class="d-flex align-items-center gap-2 overflow-hidden px-2">
-              <button id="btnToggleSubscription" class="btn btn-sm btn-light border p-1 rounded-circle flex-shrink-0" title="Przełącz powiadomienia">
-                <i id="iconTopicSub" class="bi bi-bell-slash text-muted fs-6"></i>
-              </button>
-              <h5 class="fw-bold mb-0 text-truncate" id="activeTopicTitle" style="color: var(--burgund);">Wątek</h5>
-            </div>
-            <div id="topicHeaderActions"></div>
+        <div class="card p-3 border-0 shadow-sm rounded-4 mb-3 border-start border-4 border-primary">
+          <h6 class="fw-bold mb-1" style="color: var(--navy);">🌲 Jezioro Szczyrbskie (Štrbské Pleso)</h6>
+          <p class="small text-muted mb-2">Najwyżej położony ośrodek w Tatrach Wysokich, pewny śnieg i świetne trasy widokowe.</p>
+          <div class="d-flex gap-2">
+            <a href="https://www.vt.sk/pl/resort-i-uslugi/kamery-internetowe" target="_blank" class="btn btn-sm btn-outline-primary flex-fill">
+              📹 Kamery na żywo
+            </a>
+            <a href="https://www.vt.sk/pl/gory/zima/stan-tras-i-wyciagow" target="_blank" class="btn btn-sm btn-outline-secondary flex-fill">
+              ❄️ Raport śniegowy
+            </a>
           </div>
+        </div>
 
-          <div id="forumPostsList" class="mb-3"></div>
-
-          <div class="card p-3 border-0 shadow-sm rounded-4 mb-4">
-            <h6 class="fw-bold mb-2" style="color: var(--burgund);">✍️ Napisz odpowiedź</h6>
-            
-            <!-- Pasek formatowania w odpowiedzi -->
-            <div class="d-flex align-items-center gap-1 mb-2 p-1 bg-light rounded border">
-              <button type="button" class="btn btn-sm btn-outline-dark fw-bold px-2 py-0" onmousedown="event.preventDefault()" onclick="formatReplyDoc('bold')" title="Pogrubienie">B</button>
-              <button type="button" class="btn btn-sm btn-outline-dark fst-italic px-2 py-0" onmousedown="event.preventDefault()" onclick="formatReplyDoc('italic')" title="Kursywa">I</button>
-              <button type="button" class="btn btn-sm btn-outline-dark text-decoration-underline px-2 py-0" onmousedown="event.preventDefault()" onclick="formatReplyDoc('underline')" title="Podkreślenie">U</button>
-              <div class="vr mx-1"></div>
-              <label class="small fw-bold text-muted me-1" style="font-size: 11px;">Kolor:</label>
-              <input type="color" class="form-control form-control-color form-control-sm p-0 border-0" value="#4A1525" style="width: 26px; height: 26px; cursor: pointer;" onchange="formatReplyDoc('foreColor', this.value)" title="Wybierz kolor tekstu">
-            </div>
-
-            <div id="forumPostEditor" class="form-control mb-2 forum-editor-box" contenteditable="true" placeholder="Wpisz treść odpowiedzi..."></div>
-            <button id="btnSendPost" class="btn btn-burgund btn-sm w-100 py-2">Opublikuj odpowiedź</button>
-          </div>
-
-          <!-- Dolny przycisk powrotu do wątków -->
-          <div class="text-center mb-4">
-            <button class="btn btn-sm btn-outline-secondary w-100 py-2" onclick="showTopicsList()">
-              <i class="bi bi-arrow-left"></i> Wróć do wątków
-            </button>
-          </div>
+        <div class="card p-3 border-0 shadow-sm rounded-4 mb-4">
+          <h6 class="fw-bold mb-2" style="color: var(--navy);">🏨 Stará Lesná (Baza wypadowa)</h6>
+          <div class="small text-muted mb-2">Hotel Horizont Resort **** — położenie: 780 m n.p.m.</div>
+          <a href="https://www.horizontresort.sk/pl/" target="_blank" class="btn btn-sm btn-outline-dark w-100">
+            🌐 Strona hotelu & Strefa Wellness
+          </a>
         </div>
       </section>
 
@@ -364,25 +294,24 @@
       <!-- ========================================================================== -->
       <section id="tab-costs" class="app-tab" style="display: none;">
         <div class="d-flex align-items-center justify-content-between mb-3">
-          <h4 class="fw-bold mb-0">💸 Wydatki</h4>
+          <h4 class="fw-bold mb-0" style="color: var(--navy);">💸 Wydatki</h4>
           <button class="btn btn-sm btn-outline-secondary" onclick="switchTab('dashboard')"><i class="bi bi-arrow-left"></i> Wróć</button>
         </div>
 
-        <!-- ZWIJANA KARTA: NOWY WYDATEK / EDYCJA -->
+        <!-- Karta nowego wydatku -->
         <div class="card p-3 border-0 shadow-sm rounded-4 mb-3">
           <div class="d-flex justify-content-between align-items-center" style="cursor: pointer;" onclick="toggleNewCostForm()">
-            <h6 class="fw-bold mb-0" id="costFormHeaderTitle" style="color: var(--burgund);">➕ Nowy wydatek</h6>
+            <h6 class="fw-bold mb-0" id="costFormHeaderTitle" style="color: var(--navy);">➕ Nowy wydatek</h6>
             <i id="iconNewCostToggle" class="bi bi-chevron-down text-muted fs-5"></i>
           </div>
 
           <div id="newCostFormCollapse" style="display: none;" class="mt-3 pt-2 border-top">
             <form id="formCost">
-              <!-- UKRYTE POLE NA ID EDYCJI -->
               <input type="hidden" id="editingCostId" value="">
 
               <div class="mb-2">
                 <label class="small fw-bold text-muted">Za co:</label>
-                <input type="text" id="costName" class="form-control form-control-sm" required placeholder="np. Obiad w Dolinie Pięknej Pani">
+                <input type="text" id="costName" class="form-control form-control-sm" required placeholder="np. Obiad na stoku, parking, skipassy">
               </div>
 
               <div class="row g-2 mb-2">
@@ -393,9 +322,8 @@
                 <div class="col-5">
                   <label class="small fw-bold text-muted">Waluta:</label>
                   <select id="costCurrency" class="form-select form-select-sm">
-                    <option value="HUF" selected>HUF</option>
-                    <option value="PLN">PLN</option>
-                    <option value="EUR">EUR</option>
+                    <option value="EUR" selected>EUR (€)</option>
+                    <option value="PLN">PLN (zł)</option>
                   </select>
                 </div>
               </div>
@@ -407,17 +335,17 @@
                 </label>
               </div>
 
-              <!-- ROZLICZENIE DLA KOGO -->
+              <!-- Rozliczenie dla kogo -->
               <div id="costBorrowerWrapper" class="mb-2 p-2 bg-light rounded border">
                 <label class="small fw-bold text-muted d-block mb-1">Dla kogo rozliczenie:</label>
                 <div class="d-flex gap-3 mb-2 small">
                   <div class="form-check">
                     <input class="form-check-input" type="radio" name="borrowerMode" id="bModeAll" value="all" checked>
-                    <label class="form-check-label" for="bModeAll">Całe Stado</label>
+                    <label class="form-check-label" for="bModeAll">Wszyscy (3 ekipy)</label>
                   </div>
                   <div class="form-check">
                     <input class="form-check-input" type="radio" name="borrowerMode" id="bModeTeams" value="teams">
-                    <label class="form-check-label" for="bModeTeams">Wybrane ekipy</label>
+                    <label class="form-check-label" for="bModeTeams">Wybrane rodziny</label>
                   </div>
                   <div class="form-check">
                     <input class="form-check-input" type="radio" name="borrowerMode" id="bModeUsers" value="users">
@@ -427,10 +355,9 @@
 
                 <div id="boxBorrowerTeams" style="display: none;" class="mb-2">
                   <div class="d-flex flex-wrap gap-1">
-                    <label class="badge bg-white text-dark border p-1 small"><input type="checkbox" class="team-cb" value="Bobry"> Bobry</label>
                     <label class="badge bg-white text-dark border p-1 small"><input type="checkbox" class="team-cb" value="Pakuły"> Pakuły</label>
-                    <label class="badge bg-white text-dark border p-1 small"><input type="checkbox" class="team-cb" value="Robaki"> Robaki</label>
                     <label class="badge bg-white text-dark border p-1 small"><input type="checkbox" class="team-cb" value="Sileziny"> Sileziny</label>
+                    <label class="badge bg-white text-dark border p-1 small"><input type="checkbox" class="team-cb" value="Śnieżyńscy"> Śnieżyńscy</label>
                   </div>
                 </div>
 
@@ -441,11 +368,11 @@
 
               <div class="mb-3">
                 <label class="small fw-bold text-muted">Komentarz (opcjonalnie):</label>
-                <input type="text" id="costComment" class="form-control form-control-sm" placeholder="np. Płatność kartą">
+                <input type="text" id="costComment" class="form-control form-control-sm" placeholder="np. Płacone kartą">
               </div>
 
               <div class="d-flex gap-2">
-                <button type="submit" id="btnSubmitCost" class="btn btn-burgund btn-sm flex-fill py-2">
+                <button type="submit" id="btnSubmitCost" class="btn btn-navy btn-sm flex-fill py-2">
                   Zapisz wydatek
                 </button>
                 <button type="button" id="btnCancelEditCost" class="btn btn-outline-secondary btn-sm py-2 px-3" style="display: none;" onclick="cancelCostEdit()">
@@ -456,11 +383,11 @@
           </div>
         </div>
 
-        <!-- LISTA WYDATKÓW (AKTYWNE) -->
-        <h6 class="fw-bold mb-2" style="color: var(--burgund);">📋 Historia transakcji</h6>
+        <!-- Lista wydatków -->
+        <h6 class="fw-bold mb-2" style="color: var(--navy);">📋 Historia transakcji</h6>
         <div id="costsList" class="mb-3"></div>
 
-        <!-- ZWIJANE ARCHIWUM WYDATKÓW -->
+        <!-- Archiwum wydatków -->
         <div class="card p-2 border-0 shadow-sm rounded-4 mb-4">
           <div class="d-flex justify-content-between align-items-center px-2 py-1" style="cursor: pointer;" onclick="toggleArchivedCosts()">
             <span class="fw-bold small text-muted">📦 Zarchiwizowane wydatki</span>
@@ -471,16 +398,44 @@
       </section>
 
       <!-- ========================================================================== -->
-      <!-- 4. MODUŁ: ZAKUPY -->
+      <!-- 4. MODUŁ: PORTFEL (KOMPENSATA WIELOSTRONNA) -->
+      <!-- ========================================================================== -->
+      <section id="tab-wallet" class="app-tab" style="display: none;">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h4 class="fw-bold mb-0" style="color: var(--navy);">🏦 Portfel</h4>
+          <button class="btn btn-sm btn-outline-secondary" onclick="switchTab('dashboard')"><i class="bi bi-arrow-left"></i> Wróć</button>
+        </div>
+
+        <div class="card p-3 border-0 shadow-sm rounded-4 mb-3">
+          <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+            <span class="fw-bold">Twój Bilans Całkowity:</span>
+            <span id="walletTotalSummary" class="fs-5 fw-bold">0.00 EUR</span>
+          </div>
+
+          <h6 class="fw-bold mb-2" style="color: var(--navy);">🤝 Bilans z poszczególnymi rodzinami:</h6>
+          <div id="walletTeamBalances" class="mb-3"></div>
+
+          <hr class="my-3">
+          <h6 class="text-danger fw-bold mb-2">🔴 Szczegóły: Do oddania innym:</h6>
+          <div id="walletOweList" class="small mb-3"></div>
+
+          <hr class="my-3">
+          <h6 class="text-success fw-bold mb-2">🟢 Szczegóły: Do odebrania od innych:</h6>
+          <div id="walletDueList" class="small mb-2"></div>
+        </div>
+      </section>
+
+      <!-- ========================================================================== -->
+      <!-- 5. MODUŁ: ZAKUPY -->
       <!-- ========================================================================== -->
       <section id="tab-shopping" class="app-tab" style="display: none;">
         <div class="d-flex align-items-center justify-content-between mb-3">
-          <h4 class="fw-bold mb-0">🛒 Listy Zakupów</h4>
+          <h4 class="fw-bold mb-0" style="color: var(--navy);">🛒 Listy Zakupów</h4>
           <button class="btn btn-sm btn-outline-secondary" onclick="switchTab('dashboard')"><i class="bi bi-arrow-left"></i> Wróć</button>
         </div>
 
         <div class="d-flex gap-2 mb-3 align-items-center">
-          <button id="btnNewShoppingList" class="btn btn-burgund btn-sm text-nowrap">+ Nowa lista</button>
+          <button id="btnNewShoppingList" class="btn btn-navy btn-sm text-nowrap">+ Nowa lista</button>
           <select id="shoppingListSelect" class="form-select form-select-sm"></select>
         </div>
 
@@ -501,11 +456,12 @@
           🔒 Ta lista została zamknięta i rozliczona w Wydatkach.
         </div>
 
+        <!-- Modal zakończenia zakupów -->
         <div class="modal fade" id="modalFinishShopping" tabindex="-1">
           <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content rounded-4 border-0 shadow">
               <div class="modal-header border-bottom py-2">
-                <h6 class="modal-title fw-bold" style="color: var(--burgund);">🧾 Zakończ zakupy</h6>
+                <h6 class="modal-title fw-bold" style="color: var(--navy);">🧾 Zakończ zakupy</h6>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
               </div>
               <div class="modal-body">
@@ -518,9 +474,8 @@
                       </div>
                       <div class="col-5">
                         <select id="finishCurrency" class="form-select form-select-sm">
-                          <option value="HUF" selected>HUF</option>
-                          <option value="PLN">PLN</option>
-                          <option value="EUR">EUR</option>
+                          <option value="EUR" selected>EUR (€)</option>
+                          <option value="PLN">PLN (zł)</option>
                         </select>
                       </div>
                     </div>
@@ -528,18 +483,17 @@
                   <div class="mb-2">
                     <label class="small fw-bold">Dla kogo zakup:</label>
                     <select id="finishBorrower" class="form-select form-select-sm">
-                      <option value="Całe Stado">Całe Stado</option>
-                      <option value="Bobry">Bobry (tylko ta ekipa)</option>
-                      <option value="Pakuły">Pakuły (tylko ta ekipa)</option>
-                      <option value="Robaki">Robaki (tylko ta ekipa)</option>
-                      <option value="Sileziny">Sileziny (tylko ta ekipa)</option>
+                      <option value="Wszyscy">Wszyscy (3 ekipy)</option>
+                      <option value="Pakuły">Pakuły (tylko nasza ekipa)</option>
+                      <option value="Sileziny">Sileziny</option>
+                      <option value="Śnieżyńscy">Śnieżyńscy</option>
                     </select>
                   </div>
                   <div class="mb-3">
                     <label class="small text-muted">Komentarz:</label>
-                    <input type="text" id="finishComment" class="form-control form-control-sm" placeholder="np. Zakupy spożywcze">
+                    <input type="text" id="finishComment" class="form-control form-control-sm" placeholder="np. Biedronka Słowacja / Zakupy spożywcze">
                   </div>
-                  <button type="submit" class="btn btn-burgund btn-sm w-100">Zatwierdź i rozlicz</button>
+                  <button type="submit" class="btn btn-navy btn-sm w-100">Zatwierdź i rozlicz w Wydatkach</button>
                 </form>
               </div>
             </div>
@@ -548,34 +502,87 @@
       </section>
 
       <!-- ========================================================================== -->
-      <!-- 5. MODUŁ: KANTOR -->
+      <!-- 6. MODUŁ: FORUM DYSKUSYJNE -->
+      <!-- ========================================================================== -->
+      <section id="tab-forum" class="app-tab" style="display: none;">
+        <div id="forumTopicsView">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <h4 class="fw-bold mb-0" style="color: var(--navy);">💬 Forum</h4>
+            <button class="btn btn-sm btn-outline-secondary" onclick="switchTab('dashboard')"><i class="bi bi-arrow-left"></i> Wróć</button>
+          </div>
+
+          <div class="card border-0 shadow-sm rounded-4 mb-3" style="border-left: 5px solid var(--navy) !important; background: #FFFFFF;">
+            <div class="p-3 d-flex justify-content-between align-items-center" style="cursor: pointer;" onclick="toggleNewTopicForm()">
+              <h6 class="fw-bold mb-0" style="color: var(--navy);">➕ Załóż nowy wątek</h6>
+              <i id="iconNewTopicToggle" class="bi bi-chevron-down text-muted"></i>
+            </div>
+            
+            <div id="newTopicFormCollapse" class="px-3 pb-3" style="display: none;">
+              <hr class="mt-0 mb-3 text-muted">
+              <label class="small fw-bold text-muted mb-1">Tytuł wątku:</label>
+              <input type="text" id="newTopicTitle" class="form-control form-control-sm mb-2" placeholder="Wpisz temat...">
+
+              <label class="small fw-bold text-muted mb-1">Treść pierwszej wiadomości:</label>
+              <div id="newTopicFirstPost" class="form-control mb-3 forum-editor-box" contenteditable="true" placeholder="Napisz pierwszy post..."></div>
+              <button id="btnCreateTopic" class="btn btn-navy btn-sm w-100 py-2">Opublikuj wątek</button>
+            </div>
+          </div>
+
+          <div class="card p-3 border-0 shadow-sm rounded-4 mb-3">
+            <h6 class="fw-bold mb-3" style="color: var(--navy);">📑 Aktywne wątki</h6>
+            <div id="forumTopicsList" class="list-group list-group-flush"></div>
+          </div>
+
+          <div class="card p-3 border-0 shadow-sm rounded-4 mb-4">
+            <div class="d-flex justify-content-between align-items-center" style="cursor: pointer;" onclick="toggleArchivedTopics()">
+              <h6 class="fw-bold mb-0 text-muted" style="font-size: 0.9rem;">📦 Wątki archiwalne</h6>
+              <i id="iconArchivedToggle" class="bi bi-chevron-down text-muted"></i>
+            </div>
+            <div id="forumArchivedTopicsList" class="list-group list-group-flush mt-2" style="display: none;"></div>
+          </div>
+        </div>
+
+        <div id="forumSingleTopicView" style="display: none;">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <button class="btn btn-sm btn-outline-secondary" onclick="showTopicsList()"><i class="bi bi-arrow-left"></i> Wróć</button>
+            <div class="d-flex align-items-center gap-2 overflow-hidden px-2">
+              <button id="btnToggleSubscription" class="btn btn-sm btn-light border p-1 rounded-circle flex-shrink-0" title="Powiadomienia">
+                <i id="iconTopicSub" class="bi bi-bell-slash text-muted fs-6"></i>
+              </button>
+              <h5 class="fw-bold mb-0 text-truncate" id="activeTopicTitle" style="color: var(--navy);">Wątek</h5>
+            </div>
+            <div id="topicHeaderActions"></div>
+          </div>
+
+          <div id="forumPostsList" class="mb-3"></div>
+
+          <div class="card p-3 border-0 shadow-sm rounded-4 mb-4">
+            <h6 class="fw-bold mb-2" style="color: var(--navy);">✍️ Napisz odpowiedź</h6>
+            <div id="forumPostEditor" class="form-control mb-2 forum-editor-box" contenteditable="true" placeholder="Wpisz treść odpowiedzi..."></div>
+            <button id="btnSendPost" class="btn btn-navy btn-sm w-100 py-2">Opublikuj odpowiedź</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================================== -->
+      <!-- 7. MODUŁ: KANTOR (EUR / PLN) -->
       <!-- ========================================================================== -->
       <section id="tab-exchange" class="app-tab" style="display: none;">
         <div class="d-flex align-items-center justify-content-between mb-3">
-          <h4 class="fw-bold mb-0">💱 Kantor</h4>
+          <h4 class="fw-bold mb-0" style="color: var(--navy);">💱 Kantor EUR / PLN</h4>
           <button class="btn btn-sm btn-outline-secondary" onclick="switchTab('dashboard')"><i class="bi bi-arrow-left"></i> Wróć</button>
         </div>
 
         <div class="card p-3 border-0 shadow-sm rounded-4 mb-3">
-          <div class="d-flex gap-1 overflow-auto pb-2 mb-1" id="quickAmounts">
-            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-0" style="font-size: 11px;" onclick="setKantorAmount(500)">500</button>
-            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-0" style="font-size: 11px;" onclick="setKantorAmount(1000)">1 000</button>
-            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-0" style="font-size: 11px;" onclick="setKantorAmount(3000)">3 000</button>
-            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-0" style="font-size: 11px;" onclick="setKantorAmount(5000)">5 000</button>
-            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-0" style="font-size: 11px;" onclick="setKantorAmount(10000)">10 000</button>
-            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-0" style="font-size: 11px;" onclick="setKantorAmount(20000)">20 000</button>
-          </div>
-
           <label class="small fw-bold mb-1">Kwota:</label>
-          <input type="number" id="exAmount" class="form-control form-control-sm mb-2" value="1000" min="0" step="any">
+          <input type="number" id="exAmount" class="form-control form-control-sm mb-2" value="50" min="0" step="any">
           
           <div class="row g-2 align-items-end mb-2">
             <div class="col-5">
               <label class="small text-muted">Z waluty:</label>
               <select id="exFrom" class="form-select form-select-sm">
-                <option value="HUF" selected>HUF</option>
-                <option value="PLN">PLN</option>
-                <option value="EUR">EUR</option>
+                <option value="EUR" selected>EUR (€)</option>
+                <option value="PLN">PLN (zł)</option>
               </select>
             </div>
             <div class="col-2 text-center pb-1">
@@ -586,101 +593,15 @@
             <div class="col-5">
               <label class="small text-muted">Na walutę:</label>
               <select id="exTo" class="form-select form-select-sm">
-                <option value="PLN" selected>PLN</option>
-                <option value="HUF">HUF</option>
-                <option value="EUR">EUR</option>
+                <option value="PLN" selected>PLN (zł)</option>
+                <option value="EUR">EUR (€)</option>
               </select>
             </div>
           </div>
 
-          <div class="form-check form-switch mb-2">
-            <input class="form-check-input" type="checkbox" id="exCustomToggle">
-            <label class="form-check-label small fw-bold" for="exCustomToggle">✏️ Wpisz własny kurs</label>
+          <div id="exResult" class="p-3 text-center rounded-3 my-2" style="background:#F0FDF4; border:1px solid #BBF7D0;">
+            <div class="fs-4 fw-bold" style="color: var(--navy);">---</div>
           </div>
-
-          <div id="exCustomRateContainer" class="mb-2" style="display: none;">
-            <label class="small text-muted" id="exCustomRateLabel">Własny kurs:</label>
-            <input type="number" id="exCustomRateInput" class="form-control form-control-sm" step="0.0001" placeholder="Wpisz kurs">
-          </div>
-
-          <div id="exResult" class="p-3 text-center rounded-3 my-1" style="background:#FFF2F2; border:1px solid var(--burgund);">
-            <div class="fs-4 fw-bold" style="color:var(--burgund);">---</div>
-          </div>
-        </div>
-
-        <div class="card p-3 border-0 shadow-sm rounded-4 mb-4">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <h6 class="fw-bold mb-0" style="color: var(--burgund); font-size: 0.9rem;">📋 Szybka ściągawka przeliczeń</h6>
-            <small class="text-muted" id="cheatsheetRateInfo" style="font-size: 11px;"></small>
-          </div>
-          <div class="table-responsive">
-            <table class="table table-sm table-borderless align-middle mb-0" style="font-size: 0.85rem;">
-              <tbody id="cheatsheetBody"></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-<!-- ========================================================================== -->
-      <!-- 6. MODUŁ: PORTFEL -->
-      <!-- ========================================================================== -->
-      <section id="tab-wallet" class="app-tab" style="display: none;">
-        <div class="d-flex align-items-center justify-content-between mb-3">
-          <h4 class="fw-bold mb-0">🏦 Portfel</h4>
-          <button class="btn btn-sm btn-outline-secondary" onclick="switchTab('dashboard')"><i class="bi bi-arrow-left"></i> Wróć</button>
-        </div>
-
-        <div class="card p-3 border-0 shadow-sm rounded-4 mb-3">
-          <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
-            <span class="fw-bold">Twój Bilans Całkowity:</span>
-            <span id="walletTotalSummary" class="fs-5 fw-bold">0 HUF</span>
-          </div>
-
-          <!-- NOWA SEKCJA: WZAJEMNE BILANSE Z POSZCZEGÓLNYMI EKIPAMI -->
-          <h6 class="fw-bold mb-2" style="color: var(--burgund);">🤝 Bilans z poszczególnymi ekipami:</h6>
-          <div id="walletTeamBalances" class="mb-3"></div>
-
-          <hr class="my-3">
-
-          <!-- SZCZEGÓŁOWE TRANSAKCJE -->
-          <h6 class="text-danger fw-bold mb-2">🔴 Szczegóły: Do oddania innym:</h6>
-          <div id="walletOweList" class="small mb-3"></div>
-
-          <hr class="my-3">
-
-          <h6 class="text-success fw-bold mb-2">🟢 Szczegóły: Do odebrania od innych:</h6>
-          <div id="walletDueList" class="small mb-2"></div>
-        </div>
-      </section>
-
-      <!-- ========================================================================== -->
-      <!-- 7. MODUŁ: PŁACIMY RAZEM -->
-      <!-- ========================================================================== -->
-      <section id="tab-calc" class="app-tab" style="display: none;">
-        <div class="d-flex align-items-center justify-content-between mb-3">
-          <h4 class="fw-bold mb-0">📊 Płacimy Razem</h4>
-          <button class="btn btn-sm btn-outline-secondary" onclick="switchTab('dashboard')"><i class="bi bi-arrow-left"></i> Wróć</button>
-        </div>
-        <div class="card p-3 border-0 shadow-sm rounded-4">
-          <div class="mb-2">
-            <label class="small fw-bold">Waluta:</label>
-            <select id="calcCurrency" class="form-select form-select-sm">
-              <option value="HUF">HUF</option><option value="PLN">PLN</option><option value="EUR">EUR</option>
-            </select>
-          </div>
-          <div class="mb-2">
-            <label class="small fw-bold">Cena biletu normalnego:</label>
-            <input type="number" id="calcNormal" class="form-control form-control-sm" value="0"
-                   onfocus="if(this.value==='0') this.value='';" 
-                   onblur="if(this.value==='') this.value='0';">
-          </div>
-          <div class="mb-3">
-            <label class="small fw-bold">Cena biletu ulgowego:</label>
-            <input type="number" id="calcReduced" class="form-control form-control-sm" value="0"
-                   onfocus="if(this.value==='0') this.value='';" 
-                   onblur="if(this.value==='') this.value='0';">
-          </div>
-          <div id="calcResults" class="p-3 bg-light rounded-3"></div>
         </div>
       </section>
 
@@ -689,12 +610,12 @@
       <!-- ========================================================================== -->
       <section id="tab-games" class="app-tab" style="display: none;">
         <div class="d-flex align-items-center justify-content-between mb-3">
-          <h4 class="fw-bold mb-0">🎲 Rozgrywki</h4>
+          <h4 class="fw-bold mb-0" style="color: var(--navy);">🎲 Rozgrywki Wieczorne</h4>
           <button class="btn btn-sm btn-outline-secondary" onclick="switchTab('dashboard')"><i class="bi bi-arrow-left"></i> Wróć</button>
         </div>
 
-        <div id="gameSetupCard" class="card p-3 border-0 shadow-sm rounded-4 mb-4" style="background: #FFFFFF; border-left: 5px solid var(--burgund) !important;">
-          <h6 class="fw-bold mb-3" style="color: var(--burgund);">➕ Nowa rozgrywka</h6>
+        <div id="gameSetupCard" class="card p-3 border-0 shadow-sm rounded-4 mb-4" style="border-left: 5px solid var(--navy) !important;">
+          <h6 class="fw-bold mb-3" style="color: var(--navy);">➕ Nowa rozgrywka</h6>
           
           <div class="mb-3">
             <label class="small fw-bold text-muted mb-1">Wybierz grę:</label>
@@ -705,118 +626,92 @@
               <option value="Carcassonne">Carcassonne (wygrywa najwięcej pkt)</option>
               <option value="Inna">Inna gra (wpisz własną)...</option>
             </select>
-            
-            <div id="customGameContainer" style="display: none;" class="p-3 border rounded-3 bg-light mb-2">
-              <input type="text" id="customGameNameInput" class="form-control form-control-sm mb-3" placeholder="Wpisz nazwę gry...">
-              
-              <div class="d-flex align-items-center justify-content-between p-2 bg-white rounded-3 border">
-                <span class="small fw-bold" id="labelScoreRule">📈 Wygrywa: NAJWIĘCEJ pkt</span>
-                <div class="form-check form-switch m-0">
-                  <input class="form-check-input" type="checkbox" id="customLowScoreWins" style="cursor: pointer; width: 2.5em; height: 1.3em;">
-                </div>
-              </div>
-            </div>
           </div>
 
           <div class="mb-3">
-            <label class="small fw-bold text-muted d-block mb-1">Wybierz graczy (zaznacz min. 2 osoby):</label>
+            <label class="small fw-bold text-muted d-block mb-1">Gracze (zaznacz min. 2 osoby):</label>
             <div id="gamePlayersCheckboxes" class="d-flex flex-wrap gap-1 p-2 border rounded-3 bg-light"></div>
-            <small id="playersCountWarning" class="text-danger small" style="display: none;">Wybierz co najmniej 2 graczy!</small>
           </div>
 
-          <button id="btnStartGame" class="btn btn-burgund btn-sm w-100 py-2">▶ Rozpocznij rozgrywkę</button>
+          <button id="btnStartGame" class="btn btn-navy btn-sm w-100 py-2">▶ Rozpocznij rozgrywkę</button>
         </div>
 
         <div id="activeGameArea" style="display: none;">
           <div class="card p-3 border-0 shadow-sm rounded-4 mb-3">
             <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
               <div>
-                <h5 class="fw-bold mb-0" id="activeGameTitle" style="color: var(--burgund);">Gra</h5>
+                <h5 class="fw-bold mb-0" id="activeGameTitle" style="color: var(--navy);">Gra</h5>
                 <small class="text-muted" id="activeGameRuleText"></small>
               </div>
-              <button id="btnFinishGame" class="btn btn-danger btn-sm px-3">🏁 Zakończ grę</button>
+              <button id="btnFinishGame" class="btn btn-danger btn-sm px-3">🏁 Podsumuj</button>
             </div>
-
             <div id="completedRoundsList" class="mb-2"></div>
-
             <div id="currentRoundBox" class="p-3 border rounded-3 bg-light mt-2">
               <h6 class="fw-bold mb-2 text-primary" id="currentRoundTitle">Runda 1</h6>
               <div id="currentRoundInputs" class="row g-2 mb-3"></div>
-              <button id="btnNextRound" class="btn btn-primary btn-sm w-100">✓ Zapisz i rozpocznij następną rundę</button>
+              <button id="btnNextRound" class="btn btn-primary btn-sm w-100">✓ Następna runda</button>
             </div>
           </div>
         </div>
 
         <div id="gamePodiumCard" class="card p-3 border-0 shadow-sm rounded-4 mb-4 text-center" style="display: none;">
-          <h5 class="fw-bold mb-3" style="color: var(--burgund);">🏆 Wyniki końcowe</h5>
+          <h5 class="fw-bold mb-3" style="color: var(--navy);">🏆 Wyniki</h5>
           <div id="podiumList" class="mb-3 text-start"></div>
-          <button id="btnNewGameReset" class="btn btn-burgund btn-sm w-100">Nowa rozgrywka</button>
+          <button id="btnNewGameReset" class="btn btn-navy btn-sm w-100">Nowa gra</button>
         </div>
 
         <div class="card p-3 border-0 shadow-sm rounded-4 mb-4">
-          <h6 class="fw-bold mb-2" style="color: var(--burgund);">📜 Archiwum rozgrywek:</h6>
+          <h6 class="fw-bold mb-2" style="color: var(--navy);">📜 Zakończone rozgrywki:</h6>
           <div id="pastGamesList" class="small text-muted"></div>
         </div>
       </section>
 
       <!-- ========================================================================== -->
-      <!-- 9. MODUŁ: PAMIĘTNIKI Z WAKACJI -->
+      <!-- 9. MODUŁ: KRONIKA ZE STOKU -->
       <!-- ========================================================================== -->
       <section id="tab-diary" class="app-tab" style="display: none;">
         <div class="d-flex align-items-center justify-content-between mb-3">
-          <h4 class="fw-bold mb-0" style="color: var(--burgund);">📸 Pamiętniki z wakacji</h4>
-          <button class="btn btn-sm btn-outline-secondary" onclick="switchTab('dashboard')">
-            <i class="bi bi-arrow-left"></i> Wróć
-          </button>
+          <h4 class="fw-bold mb-0" style="color: var(--navy);">❄️ Kronika ze Stoku</h4>
+          <button class="btn btn-sm btn-outline-secondary" onclick="switchTab('dashboard')"><i class="bi bi-arrow-left"></i> Wróć</button>
         </div>
 
-        <!-- ZWIJANA KARTA: NOWY WPIS -->
         <div class="card p-3 border-0 shadow-sm rounded-4 mb-3">
           <div class="d-flex justify-content-between align-items-center" style="cursor: pointer;" onclick="toggleNewDiaryForm()">
-            <h6 class="fw-bold mb-0" style="color: var(--burgund);">➕ Nowy wpis do pamiętnika</h6>
+            <h6 class="fw-bold mb-0" style="color: var(--navy);">➕ Nowy wpis do kroniki</h6>
             <i id="iconNewDiaryToggle" class="bi bi-chevron-down text-muted fs-5"></i>
           </div>
 
           <div id="newDiaryFormCollapse" style="display: none;" class="mt-3 pt-2 border-top">
             <form id="formDiary">
-              <!-- WYBÓR TYPU -->
               <div class="d-flex gap-2 mb-3">
-                <button type="button" id="btnTypeQuote" class="btn btn-sm btn-burgund flex-fill py-1" onclick="setDiaryContentType('quote')">
+                <button type="button" id="btnTypeQuote" class="btn btn-sm btn-navy flex-fill py-1" onclick="setDiaryContentType('quote')">
                   💬 Złota myśl / Cytat
                 </button>
                 <button type="button" id="btnTypePhoto" class="btn btn-sm btn-outline-secondary flex-fill py-1" onclick="setDiaryContentType('photo')">
-                  📷 Zdjęcie z podpisem
+                  📷 Zdjęcie ze stoku
                 </button>
               </div>
 
-              <!-- POLE NA ZDJĘCIE -->
               <div id="diaryPhotoFieldWrapper" style="display: none;" class="mb-3">
-                <label class="small fw-bold text-muted mb-1">Wybierz zdjęcie:</label>
+                <label class="small fw-bold text-muted mb-1">Zdjęcie:</label>
                 <input type="file" id="diaryPhotoFile" class="form-control form-control-sm" accept="image/*" onchange="previewDiarySelectedPhoto(this)">
                 <div id="diaryPhotoPreviewBox" class="mt-2 text-center" style="display: none;">
                   <img id="diaryPhotoPreviewImg" src="" class="img-thumbnail" style="max-height: 180px; object-fit: cover;">
                 </div>
               </div>
 
-              <!-- POLE TEKSTOWE -->
               <div class="mb-3">
                 <label id="diaryTextLabel" class="small fw-bold text-muted mb-1">Treść cytatu / dramy:</label>
-                <textarea id="diaryTextContent" class="form-control form-control-sm" rows="3" required placeholder="Co się właśnie wydarzyło?..."></textarea>
+                <textarea id="diaryTextContent" class="form-control form-control-sm" rows="3" required placeholder="Co się wydarzyło na stoku?..."></textarea>
               </div>
 
-              <button type="submit" id="btnSubmitDiary" class="btn btn-burgund btn-sm w-100 py-2">
+              <button type="submit" id="btnSubmitDiary" class="btn btn-navy btn-sm w-100 py-2">
                 Opublikuj w kronice
               </button>
             </form>
           </div>
         </div>
 
-        <!-- FILTR AUTORÓW -->
-        <div class="d-flex align-items-center gap-2 mb-3 overflow-auto pb-1" id="diaryAuthorFilters">
-          <button class="btn btn-sm btn-burgund px-3 py-1 active-diary-filter flex-shrink-0" onclick="filterDiaryByAuthor('all', this)">Wszyscy</button>
-        </div>
-
-        <!-- OŚ CZASU (LISTA WPISÓW) -->
         <div id="diaryEntriesContainer" class="mb-4"></div>
       </section>
 
@@ -825,18 +720,17 @@
     <!-- Stopka -->
     <footer class="footer-fixed d-flex justify-content-between align-items-center">
       <div>
-        © JBP — <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="fw-bold text-decoration-none" style="color:var(--burgund);">GitHub</a>
+        <b>Zimowisko 2027</b>
         <span class="text-muted mx-1">•</span>
-        <a href="Dokumentacja.TXT" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-muted" onclick="window.open(this.href, 'Dokumentacja', 'width=800,height=700'); return false;">📄 Dokumentacja</a>
+        <a href="Dokumentacja.TXT" target="_blank" class="text-decoration-none text-muted">📄 Notatki</a>
       </div>
-      <div>🍇 <b>Egerszalók 2026</b></div>
+      <div>⛷️ <b>Stará Lesná</b></div>
     </footer>
   </div>
 
   <!-- Biblioteki zewnętrzne -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <!-- Skrypt aplikacji -->
   <script>
