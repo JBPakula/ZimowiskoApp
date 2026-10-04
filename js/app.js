@@ -218,15 +218,51 @@ function wejdzDoAplikacji() {
   if (authScreen) authScreen.style.display = "none";
   if (appSection) appSection.style.display = "block";
 
+  // W prawym rogu nagłówka: wyłącznie ikona wylogowania (bez imienia)
   const navRight = document.getElementById("navRightSection");
   if (navRight) {
     navRight.innerHTML = `
-      <span class="badge bg-light text-dark border me-1">${currentUser}</span>
-      <button class="btn btn-outline-danger btn-sm py-1 px-2" onclick="handleLogout()" title="Wyloguj się">
-        <i class="bi bi-box-arrow-right"></i> Wyloguj
+      <button class="btn btn-outline-danger btn-sm py-1 px-2 border-0" onclick="handleLogout()" title="Wyloguj się">
+        <i class="bi bi-box-arrow-right fs-5"></i>
       </button>
     `;
   }
+
+  // Słowackie powitanie z imieniem
+  const welcomeEl = document.getElementById("welcomeUserName");
+  if (welcomeEl) welcomeEl.innerText = currentUser;
+
+  // Ustawienie lokalnego awatara dla zalogowanej osoby
+  ustawAvatarUzytkownika(currentUser);
+
+  renderDashboardDate();
+  const savedTab = localStorage.getItem("zimowisko_tab") || "dashboard";
+  switchTab(savedTab);
+}
+
+// Sprawdzenie i przypisanie awatara z assets/avatars/ z fallbackiem do kolejnych rozszerzeń
+function ustawAvatarUzytkownika(userName) {
+  const avatarImg = document.getElementById("dashboardUserAvatar");
+  if (!avatarImg || !userName) return;
+
+  const basePath = `assets/avatars/${userName}`;
+  const extensions = ['.png', '.jpg', '.jpeg'];
+  let extIndex = 0;
+
+  avatarImg.onerror = function() {
+    extIndex++;
+    if (extIndex < extensions.length) {
+      avatarImg.src = `${basePath}${extensions[extIndex]}`;
+    } else {
+      // Jeśli brak pliku na dysku: neutralny placeholder z inicjałem
+      avatarImg.onerror = null;
+      avatarImg.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=0F172A&color=fff`;
+    }
+  };
+
+  // Próba załadowania pierwszego formatu (.png)
+  avatarImg.src = `${basePath}${extensions[0]}`;
+}
 
   const welcomeEl = document.getElementById("welcomeUserName");
   if (welcomeEl) welcomeEl.innerText = currentUser;
