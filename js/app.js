@@ -1,19 +1,19 @@
 // js/app.js
 
+
+
 // ==============================================================================
 // 0. KONFIGURACJA SUPABASE I ZMIENNE GLOBALNE
 // ==============================================================================
-// WPISZ DANE ZE SWOJEGO NOWEGO PROJEKTU SUPABASE:
-const SUPABASE_URL = "https://hxytdcsmaegoffkwdprd.supabase.co/rest/v1/";
-const SUPABASE_KEY = "tsb_publishable_Iqua1-hPT4hzINjAD3ta0w_HPn-fhLv";
+const SUPABASE_URL = "https://hxytdcsmaegoffkwdprd.supabase.co";
+const SUPABASE_KEY = "sb_publishable_Iqua1-hPT4hzINjAD3ta0w_HPn-fhLv";
 
-const supabaseClient = (SUPABASE_URL.includes("twoj-projekt")) 
-  ? null 
-  : supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// Bezpośrednia inicjalizacja klienta Supabase
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const ALL_TEAMS = ["Pakuły", "Sileziny", "Śnieżyńscy"];
 
-// Tymczasowo zalogowany użytkownik (omijamy ekran logowania)
+// Bieżący użytkownik (ekran logowania wyłączony)
 let currentUser = "Asia";
 let currentUserId = 1;
 let currentTeam = "Pakuły";
