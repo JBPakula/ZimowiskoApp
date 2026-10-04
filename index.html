@@ -115,95 +115,114 @@
           <div class="text-end" id="dashboardDateBox" style="font-size: 0.85rem; line-height: 1.25;"></div>
         </div>
 
-        <!-- Kafelki Nawigacyjne -->
+<!-- ============================================================================== -->
+        <!-- MODUŁ: SIATKA KAFELKÓW PULPITU (8 MODUŁÓW Z NOWYMI IKONAMI) -->
+        <!-- ============================================================================== -->
         <div class="row g-2 mt-1">
-          <div class="col-6">
-            <div class="card dashboard-card shadow-sm h-100" onclick="switchTab('tab-plan')">
-              <div class="card-body text-center py-2 px-1">
-                <div class="fs-4 mb-1">⛷️</div>
-                <div class="fw-bold tile-title">Plan i Stoki</div>
-                <div class="tile-desc text-muted">Gdzie dziś jeździmy</div>
-              </div>
-            </div>
-          </div>
+          <!-- 1. Stoki i kamery -->
           <div class="col-6">
             <div class="card dashboard-card shadow-sm h-100" onclick="switchTab('tab-weather')">
               <div class="card-body text-center py-2 px-1">
-                <div class="fs-4 mb-1">🏔️</div>
-                <div class="fw-bold tile-title">Kamery i Śnieg</div>
-                <div class="tile-desc text-muted">Łomnica i Szczyrbskie</div>
+                <div class="module-icon-box mb-1">
+                  <img src="assets/icons/stoki.png" alt="Stoki i kamery" class="module-icon-img" onerror="this.onerror=null; this.src='assets/icons/stoki.jpg';">
+                </div>
+                <div class="fw-bold tile-title">Stoki</div>
+                <div class="tile-desc text-muted">aktualne warunki</div>
               </div>
             </div>
           </div>
 
-          <div class="col-6">
-            <div class="card dashboard-card shadow-sm h-100" onclick="switchTab('tab-costs')">
-              <div class="card-body text-center py-2 px-1">
-                <div class="fs-4 mb-1">💶</div>
-                <div class="fw-bold tile-title">Wydatki</div>
-                <div class="tile-desc text-muted">Wpisywanie EUR / PLN</div>
-              </div>
-            </div>
-          </div>
-          <div class="col-6">
-            <div class="card dashboard-card shadow-sm h-100" onclick="switchTab('tab-wallet')">
-              <div class="card-body text-center py-2 px-1">
-                <div class="fs-4 mb-1">🏦</div>
-                <div class="fw-bold tile-title">Portfel</div>
-                <div class="tile-desc text-muted">Kompensata ekip</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-6">
-            <div class="card dashboard-card shadow-sm h-100" onclick="switchTab('tab-shopping')">
-              <div class="card-body text-center py-2 px-1">
-                <div class="fs-4 mb-1">🛒</div>
-                <div class="fw-bold tile-title">Zakupy</div>
-                <div class="tile-desc text-muted">Wspólna lista</div>
-              </div>
-            </div>
-          </div>
-          <div class="col-6">
-            <div class="card dashboard-card shadow-sm h-100" onclick="switchTab('tab-forum')">
-              <div class="card-body text-center py-2 px-1">
-                <div class="fs-4 mb-1">💬</div>
-                <div class="fw-bold tile-title">Forum</div>
-                <div class="tile-desc text-muted">Ustalenia i wątki</div>
-              </div>
-            </div>
-          </div>
-
+          <!-- 2. Kantor -->
           <div class="col-6">
             <div class="card dashboard-card shadow-sm h-100" onclick="switchTab('tab-exchange')">
               <div class="card-body text-center py-2 px-1">
-                <div class="fs-4 mb-1">💱</div>
+                <div class="module-icon-box mb-1">
+                  <img src="assets/icons/kantor.png" alt="Kantor" class="module-icon-img" onerror="this.onerror=null; this.src='assets/icons/kantor.jpg';">
+                </div>
                 <div class="fw-bold tile-title">Kantor</div>
-                <div class="tile-desc text-muted">EUR ➔ PLN</div>
+                <div class="tile-desc text-muted">EUR ⮂ PLN</div>
               </div>
             </div>
           </div>
+
+          <!-- 3. Wydatki -->
+          <div class="col-6">
+            <div class="card dashboard-card shadow-sm h-100" onclick="switchTab('tab-costs')">
+              <div class="card-body text-center py-2 px-1">
+                <div class="module-icon-box mb-1">
+                  <img src="assets/icons/wydatki.png" alt="Wydatki" class="module-icon-img" onerror="this.onerror=null; this.src='assets/icons/wydatki.jpg';">
+                </div>
+                <div class="fw-bold tile-title">Wydatki</div>
+                <div class="tile-desc text-muted">wspólne i prywatne</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. Portfel -->
+          <div class="col-6">
+            <div class="card dashboard-card shadow-sm h-100" onclick="switchTab('tab-wallet')">
+              <div class="card-body text-center py-2 px-1">
+                <div class="module-icon-box mb-1">
+                  <img src="assets/icons/portfel.png" alt="Portfel" class="module-icon-img" onerror="this.onerror=null; this.src='assets/icons/portfel.jpg';">
+                </div>
+                <div class="fw-bold tile-title">Portfel</div>
+                <div class="tile-desc text-muted">rozliczenia ekip</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 5. Zakupy -->
+          <div class="col-6">
+            <div class="card dashboard-card shadow-sm h-100" onclick="switchTab('tab-shopping')">
+              <div class="card-body text-center py-2 px-1">
+                <div class="module-icon-box mb-1">
+                  <img src="assets/icons/zakupy.png" alt="Zakupy" class="module-icon-img" onerror="this.onerror=null; this.src='assets/icons/zakupy.jpg';">
+                </div>
+                <div class="fw-bold tile-title">Zakupy</div>
+                <div class="tile-desc text-muted">wspólna lista</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 6. Forum -->
+          <div class="col-6">
+            <div class="card dashboard-card shadow-sm h-100" onclick="switchTab('tab-forum')">
+              <div class="card-body text-center py-2 px-1">
+                <div class="module-icon-box mb-1">
+                  <img src="assets/icons/forum.png" alt="Forum" class="module-icon-img" onerror="this.onerror=null; this.src='assets/icons/forum.jpg';">
+                </div>
+                <div class="fw-bold tile-title">Forum</div>
+                <div class="tile-desc text-muted">retro forum jak za dawnych lat</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 7. Dziennik -->
+          <div class="col-6">
+            <div class="card dashboard-card shadow-sm h-100" onclick="switchTab('tab-plan')">
+              <div class="card-body text-center py-2 px-1">
+                <div class="module-icon-box mb-1">
+                  <img src="assets/icons/dziennik.png" alt="Dziennik" class="module-icon-img" onerror="this.onerror=null; this.src='assets/icons/dziennik.jpg';">
+                </div>
+                <div class="fw-bold tile-title">Dziennik</div>
+                <div class="tile-desc text-muted">co dziś robiliśmy</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 8. Rozgrywki -->
           <div class="col-6">
             <div class="card dashboard-card shadow-sm h-100" onclick="switchTab('tab-games')">
               <div class="card-body text-center py-2 px-1">
-                <div class="fs-4 mb-1">🎲</div>
+                <div class="module-icon-box mb-1">
+                  <img src="assets/icons/rozgrywki.png" alt="Rozgrywki" class="module-icon-img" onerror="this.onerror=null; this.src='assets/icons/rozgrywki.jpg';">
+                </div>
                 <div class="fw-bold tile-title">Rozgrywki</div>
-                <div class="tile-desc text-muted">Gry wieczorne</div>
+                <div class="tile-desc text-muted">wyniki gier</div>
               </div>
             </div>
           </div>
         </div>
-
-        <!-- Baner Kroniki -->
-        <div class="col-12 mt-2">
-          <div class="card py-2 px-3 text-center border shadow-sm rounded-4" 
-               style="cursor: pointer; background: rgba(255,255,255,0.95);" 
-               onclick="switchTab('tab-diary')">
-            <div class="fw-bold" style="color: var(--navy); font-size: 1rem; line-height: 1.2;">❄️ Kronika ze Stoku 📸</div>
-            <div class="text-muted small" style="font-size: 11px;">Zdjęcia, złote myśli i dramy z wyjazdu</div>
-          </div>
-        </div>
-      </section>
 
       <!-- ============================================================================== -->
       <!-- MODUŁ: WIDOK 3 - WYDATKI (#tab-costs) -->

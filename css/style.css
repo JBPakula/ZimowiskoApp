@@ -51,7 +51,7 @@ html, body {
   background-color: rgba(255, 255, 255, 0.96) !important;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border-top: 1px solid var(--border-subtle) !important;
+  border-top: 1px solid var(--neon-lime) !important; /* Cienka linia w kolorze neonowej zieleni */
   padding: 8px 16px;
   box-sizing: border-box;
   z-index: 9999;
@@ -106,37 +106,32 @@ html, body {
   overflow: hidden;
   box-sizing: border-box;
   border: 1px solid var(--border-subtle);
-
-  /* Płynne wtapianie krawędzi: góra w 100% biała, łagodne przejście bez ostrej linii zdjęcia */
-  background-image: 
-      linear-gradient(
-          to bottom,
-          #FFFFFF 0%,
-          #FFFFFF 45%,
-          rgba(255, 255, 255, 0.95) 55%,
-          rgba(255, 255, 255, 0.70) 65%,
-          rgba(255, 255, 255, 0.20) 75%,
-          rgba(255, 255, 255, 0) 85%
-      ),
-      url('../assets/landscape.jpg');
-  background-position: top center, center bottom;
-  background-size: 100% 100%, 100% auto;
-  background-repeat: no-repeat, no-repeat;
 }
 
-.dashboard-card {
-  background: rgba(255, 255, 255, 0.93) !important;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(226, 232, 240, 0.9) !important;
-  border-radius: 14px !important;
-  transition: transform 0.12s ease;
-  cursor: pointer;
-  user-select: none;
+/* Warstwa zdjęcia umieszczona na dole z fizyczną maską wygładzającą górną krawędź */
+.dashboard-container::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 52%;
+  background-image: url('../assets/landscape.jpg');
+  background-position: center bottom;
+  background-size: cover;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  z-index: 1;
+
+  /* Maska rozmywająca górną krawędź grafiki: góra przezroczysta, dół 100% krycia */
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 38%);
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 38%);
 }
 
-.dashboard-card:active {
-  transform: scale(0.97);
+/* Wszystkie elementy pulpitu (nagłówek, kafelki) leżą nad warstwą panoramy */
+.dashboard-container > * {
+  position: relative;
+  z-index: 2;
 }
 
 .tile-title {
@@ -166,4 +161,72 @@ html, body {
   border-left: 5px solid #F59E0B;
   padding: 12px 14px;
   margin-bottom: 10px;
+}
+
+/* ============================================================================== */
+/* MODUŁ: ZIELONY AKCENT ODLICZANIA */
+/* ============================================================================== */
+
+.countdown-badge {
+  color: var(--neon-lime) !important; /* #A3E635 */
+  font-weight: 700;
+  display: inline-block;
+}
+
+/* ============================================================================== */
+/* MODUŁ: IKONY GRAFICZNE KAFELKÓW DASHBOARDU */
+/* ============================================================================== */
+.dashboard-card {
+  background: rgba(255, 255, 255, 0.94) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(226, 232, 240, 0.9) !important;
+  border-radius: 14px !important;
+  transition: transform 0.12s ease;
+  cursor: pointer;
+  user-select: none;
+}
+
+.dashboard-card .card-body {
+  padding-top: 6px !important;
+  padding-bottom: 6px !important;
+  padding-left: 4px !important;
+  padding-right: 4px !important;
+}
+
+.dashboard-card:active {
+  transform: scale(0.97);
+}
+
+.module-icon-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 38px; /* Zmniejszona wysokość kontenera ikony z 48px na 38px */
+  margin-bottom: 2px !important;
+}
+
+.module-icon-img {
+  max-width: 36px; /* Zmniejszona szerokość z 44px na 36px */
+  max-height: 36px; /* Zmniejszona wysokość z 44px na 36px */
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  transition: transform 0.15s ease-in-out;
+}
+
+.dashboard-card:hover .module-icon-img {
+  transform: scale(1.06);
+}
+
+.tile-title {
+  color: var(--navy);
+  font-size: 0.88rem; /* Nieco mniejszy font tytułu */
+  line-height: 1.15;
+}
+
+.tile-desc {
+  font-size: 0.70rem;
+  margin-top: 1px;
+  line-height: 1.05;
 }

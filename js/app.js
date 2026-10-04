@@ -314,12 +314,12 @@ function renderDashboardDate() {
   const todayOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const diffDays = Math.ceil((targetDate - todayOnly) / (1000 * 60 * 60 * 24));
 
-  // 1. Odliczanie pod "Ahoj, Artur!"
+  // 1. Odliczanie z zielonym akcentem pod imieniem (po lewej)
   if (countdownSub) {
-    countdownSub.innerHTML = `⏳ ${diffDays} dni do szusowania`;
+    countdownSub.innerHTML = `<span class="countdown-badge">⏳ ${diffDays} dni do szusowania</span>`;
   }
 
-  // 2. Data i dzień tygodnia po prawej stronie
+  // 2. Data i dzień tygodnia (po prawej)
   if (dateBox) {
     dateBox.innerHTML = `
       <div class="fw-bold text-dark">${day} ${months[now.getMonth()]}</div>
