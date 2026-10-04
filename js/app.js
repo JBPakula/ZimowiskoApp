@@ -21,13 +21,10 @@ let malzenstwaMapa = {};
 let ekipyMapa = {};
 
 // ==============================================================================
-// 0.1 INICJALIZACJA APLIKACJI & OBSŁUGA SPLASH
+// 0.1 INICJALIZACJA APLIKACJI & OBSŁUGA SPLASH (BEZWARUNKOWE ODPALENIE)
 // ==============================================================================
 async function initApp() {
-  await pobierzKursyWalut();
-  await pobierzUzytkownikowIMalzenstwa();
-
-  // Sprawdzamy czy w localStorage jest zapisana aktywna sesja
+  // 1. Sprawdzamy czy użytkownik jest już zalogowany w pamięci przeglądarki
   const savedUser = localStorage.getItem("zimowisko_user");
   const savedUserId = localStorage.getItem("zimowisko_user_id");
   const savedTeam = localStorage.getItem("zimowisko_team");
@@ -36,29 +33,43 @@ async function initApp() {
     currentUser = savedUser;
     currentUserId = parseInt(savedUserId);
     currentTeam = savedTeam;
+
+    // Pobieramy dane w tle i wchodzimy od razu do pulpitu
+    pobierzKursyWalut();
+    pobierzUzytkownikowIMalzenstwa();
     wejdzDoAplikacji();
     return;
   }
 
-  // Brak aktywnej sesji -> animacja Splash i odsłonięcie formularza logowania
+  // 2. Niezalogowany: natychmiast odpalamy sekwencję splash -> logowanie
   startSplashAnimation();
+
+  // Dane pomocnicze pobierają się asynchronicznie w tle (nie blokują UI)
+  pobierzKursyWalut();
+  pobierzUzytkownikowIMalzenstwa();
 }
 
 function startSplashAnimation() {
   const logoWrapper = document.getElementById("splashLogoWrapper");
   const loginCard = document.getElementById("loginFormCard");
 
-  // Logo na środku przez 1.8 sekundy, po czym zjeżdża w dół
+  if (!logoWrapper || !loginCard) {
+    console.error("Nie znaleziono elementów splashLogoWrapper lub loginFormCard w DOM!");
+    return;
+  }
+
+  // Upewniamy się, że na start logo jest wycentrowane
+  logoWrapper.className = "splash-centered";
+  loginCard.style.display = "none";
+
+  // Po 1.8 sekundy logo zjeżdża na dół, a formularz logowania pojawia się u góry
   setTimeout(() => {
-    if (logoWrapper) {
-      logoWrapper.classList.remove("splash-centered");
-      logoWrapper.classList.add("splash-bottom");
-    }
-    if (loginCard) {
-      setTimeout(() => {
-        loginCard.style.display = "block";
-      }, 300);
-    }
+    logoWrapper.classList.remove("splash-centered");
+    logoWrapper.classList.add("splash-bottom");
+
+    setTimeout(() => {
+      loginCard.style.display = "block";
+    }, 250);
   }, 1800);
 }
 
