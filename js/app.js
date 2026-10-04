@@ -1,5 +1,5 @@
 // ==============================================================================
-// 0. KONFIGURACJA SUPABASE I ZMIENNE GLOBALNE
+// MODUŁ 0: KONFIGURACJA SUPABASE I ZMIENNE GLOBALNE
 // ==============================================================================
 const SUPABASE_URL = "https://hxytdcsmaegoffkwdprd.supabase.co";
 const SUPABASE_KEY = "sb_publishable_Iqua1-hPT4hzINjAD3ta0w_HPn-fhLv";
@@ -20,14 +20,14 @@ let malzenstwaMapa = {};
 let ekipyMapa = {};
 
 // ==============================================================================
-// 0.1 INICJALIZACJA I OBSŁUGA SPLASH
+// MODUŁ 0.1: INICJALIZACJA APLIKACJI I SEKWENCJA SPLASH
 // ==============================================================================
 function initApp() {
   const savedUser = localStorage.getItem("zimowisko_user");
   const savedUserId = localStorage.getItem("zimowisko_user_id");
   const savedTeam = localStorage.getItem("zimowisko_team");
 
-  // Jeśli sesja istnieje w pamięci przeglądarki – pomijamy splash i logowanie
+  // Jeśli sesja istnieje w pamięci podręcznej – pomijamy logowanie i wchodzimy od razu
   if (savedUser && savedUserId) {
     currentUser = savedUser;
     currentUserId = parseInt(savedUserId);
@@ -39,7 +39,7 @@ function initApp() {
     return;
   }
 
-  // Niezalogowany: logo wisi na środku przez 1.5 sekundy, potem zsuwa się i pokazuje formularz
+  // Niezalogowany: logo na środku przez 1.5s, po czym zjeżdża i pokazuje formularz
   startSplashSequence();
 
   pobierzKursyWalut();
@@ -60,7 +60,7 @@ function startSplashSequence() {
 }
 
 // ==============================================================================
-// 0.2 LOGOWANIE I ZMIANA HASŁA (KOD DOSTĘPU: yeti)
+// MODUŁ 0.2: LOGOWANIE I ZMIANA HASŁA (KOD DOSTĘPU: yeti)
 // ==============================================================================
 async function handleLogin() {
   const loginInput = document.getElementById("loginUsername").value.trim();
@@ -215,7 +215,7 @@ function wejdzDoAplikacji() {
   if (authScreen) authScreen.style.display = "none";
   if (appSection) appSection.style.display = "block";
 
-  // W prawym górnym rogu nagłówka: sama ikona wylogowania
+  // W prawym górnym rogu nagłówka: wyłącznie ikona wylogowania
   const navRight = document.getElementById("navRightSection");
   if (navRight) {
     navRight.innerHTML = `
@@ -232,51 +232,9 @@ function wejdzDoAplikacji() {
   // Ustawienie awatara
   ustawAvatarUzytkownika(currentUser);
 
-  // ==============================================================================
-// MODUŁ: ZEGAR, DATA I ODLICZANIE NA PULPICIE
-// ==============================================================================
-function renderDashboardDate() {
-  const dateBox = document.getElementById("dashboardDateBox");
-  const countdownSub = document.getElementById("dashboardCountdownSub");
-
-  const now = new Date();
-  const day = now.getDate();
-  const months = [
-    "stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca",
-    "lipca", "sierpnia", "września", "października", "listopada", "grudnia"
-  ];
-  const weekdays = [
-    "niedziela", "poniedziałek", "wtorek", "środa", "czwartek", "piątek", "sobota"
-  ];
-
-  // Wyjazd: 06.02.2027
-  const targetDate = new Date(2027, 1, 6);
-  const todayOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const diffTime = targetDate - todayOnly;
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-  let countdownText = "";
-  if (diffDays > 0) {
-    countdownText = `⏳ ${diffDays} dni do szusowania`;
-  } else if (diffDays === 0) {
-    countdownText = `⛷️ Dziś zaczynamy turnus!`;
-  } else {
-    countdownText = `🎿 Turnus w toku / wspomnienia`;
-  }
-
-  // Wpisanie odliczania pod imieniem
-  if (countdownSub) {
-    countdownSub.innerHTML = countdownText;
-  }
-
-  // Wpisanie samej daty i dnia tygodnia po prawej stronie
-  if (dateBox) {
-    dateBox.innerHTML = `
-      <div class="fw-bold text-dark">${day} ${months[now.getMonth()]}</div>
-      <div class="text-muted small">${weekdays[now.getDay()]}</div>
-    `;
-  }
-}
+  renderDashboardDate();
+  const savedTab = localStorage.getItem("zimowisko_tab") || "dashboard";
+  switchTab(savedTab);
 }
 
 function ustawAvatarUzytkownika(userName) {
@@ -301,7 +259,7 @@ function ustawAvatarUzytkownika(userName) {
 }
 
 // ==============================================================================
-// 0.3 DANE BAZOWE, ZEGAR I ROUTING
+// MODUŁ 0.3: DANE BAZOWE, ZEGAR I CENTRALNY ROUTING (SWITCHTAB)
 // ==============================================================================
 async function pobierzKursyWalut() {
   try {
@@ -338,23 +296,36 @@ async function pobierzUzytkownikowIMalzenstwa() {
 }
 
 function renderDashboardDate() {
-  const container = document.getElementById("dashboardDateBox");
-  if (!container) return;
+  const dateBox = document.getElementById("dashboardDateBox");
+  const countdownSub = document.getElementById("dashboardCountdownSub");
 
   const now = new Date();
   const day = now.getDate();
-  const months = ["stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca", "lipca", "sierpnia", "września", "października", "listopada", "grudnia"];
-  const weekdays = ["niedziela", "poniedziałek", "wtorek", "środa", "czwartek", "piątek", "sobota"];
+  const months = [
+    "stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca",
+    "lipca", "sierpnia", "września", "października", "listopada", "grudnia"
+  ];
+  const weekdays = [
+    "niedziela", "poniedziałek", "wtorek", "środa", "czwartek", "piątek", "sobota"
+  ];
 
+  // Wyjazd: 06.02.2027
   const targetDate = new Date(2027, 1, 6);
   const todayOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const diffDays = Math.ceil((targetDate - todayOnly) / (1000 * 60 * 60 * 24));
 
-  container.innerHTML = `
-    <div class="fw-bold text-dark">${day} ${months[now.getMonth()]}</div>
-    <div class="text-muted small">${weekdays[now.getDay()]}</div>
-    <div class="fw-bold text-primary mt-1" style="font-size: 0.78rem;">⏳ ${diffDays} dni do szusowania</div>
-  `;
+  // 1. Odliczanie pod "Ahoj, Artur!"
+  if (countdownSub) {
+    countdownSub.innerHTML = `⏳ ${diffDays} dni do szusowania`;
+  }
+
+  // 2. Data i dzień tygodnia po prawej stronie
+  if (dateBox) {
+    dateBox.innerHTML = `
+      <div class="fw-bold text-dark">${day} ${months[now.getMonth()]}</div>
+      <div class="text-muted small">${weekdays[now.getDay()]}</div>
+    `;
+  }
 }
 
 function switchTab(tabId) {
@@ -383,7 +354,7 @@ function switchTab(tabId) {
 }
 
 // ==============================================================================
-// 3. MODUŁ: WYDATKI
+// MODUŁ 3: WYDATKI (EUR / PLN)
 // ==============================================================================
 window.toggleNewCostForm = function() {
   const box = document.getElementById("newCostFormCollapse");
@@ -523,7 +494,9 @@ if (formCost) {
   };
 }
 
-// Inicjalizacja
+// ==============================================================================
+// MODUŁ STARTOWY: ODPALENIE INICJALIZACJI PO ZAŁADOWANIU DOM
+// ==============================================================================
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", initApp);
 } else {

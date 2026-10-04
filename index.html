@@ -21,7 +21,9 @@
 </head>
 <body>
 
-  <!-- Górny Pasek Nawigacyjny -->
+  <!-- ============================================================================== -->
+  <!-- MODUŁ: GÓRNY PASEK NAWIGACYJNY (NAVBAR) -->
+  <!-- ============================================================================== -->
   <nav class="navbar bg-white shadow-sm sticky-top px-3 py-2 border-bottom">
     <div class="d-flex align-items-center" style="cursor: pointer;" onclick="if(currentUser) switchTab('dashboard')">
       <img src="assets/logo_min.png" alt="Logo" class="nav-app-logo me-2" onerror="this.src='assets/logo_full.png'">
@@ -33,12 +35,12 @@
     <div id="navRightSection" class="d-flex align-items-center gap-2"></div>
   </nav>
 
- <!-- ============================================================================== -->
-  <!-- MODUŁ: EKRAN STARTOWY / SPLASH & LOGOWANIE -->
+  <!-- ============================================================================== -->
+  <!-- MODUŁ: EKRAN STARTOWY / SPLASH & LOGOWANIE (#authScreen) -->
   <!-- ============================================================================== -->
   <div id="authScreen" class="container py-3" style="max-width: 400px; min-height: calc(100vh - 120px); display: flex; flex-direction: column; justify-content: center; align-items: center;">
     
-    <!-- 1. Formularz Logowania (startowo ukryty, pojawia się po zakończeniu splash) -->
+    <!-- 1. Formularz Logowania (startowo ukryty, pojawia się po 1.5s splash) -->
     <div id="loginFormCard" class="card shadow-sm border-0 rounded-4 w-100 p-4 mb-3" style="display: none;">
       <h5 class="fw-bold text-center mb-3" style="color: var(--navy);">Logowanie</h5>
       
@@ -58,7 +60,7 @@
       <div id="loginFeedback" class="alert alert-danger small mt-3 py-2 text-center" style="display: none;"></div>
     </div>
 
-    <!-- 2. Formularz Zmiany Hasła -->
+    <!-- 2. Formularz Ustawienia / Resetu Hasła -->
     <div id="resetPasswordCard" class="card shadow-sm border-0 rounded-4 w-100 p-4 mb-3" style="display: none;">
       <h5 class="fw-bold text-center mb-3" style="color: var(--navy);">Ustaw nowe hasło</h5>
       
@@ -83,7 +85,7 @@
       <div id="resetFeedback" class="alert small mt-3 py-2 text-center" style="display: none;"></div>
     </div>
 
-    <!-- 3. Logo Zimowisko: startowo na środku (splash-centered), po 1.5s zjeżdża w dół (splash-bottom) -->
+    <!-- 3. Logo Zimowisko (Splash -> Zjazd na dół) -->
     <div id="splashLogoWrapper" class="splash-centered">
       <img src="assets/logo_full.png" alt="Logo Zimowisko" id="splashLogoImg" class="img-fluid" onerror="this.src='assets/logo_min.png'">
     </div>
@@ -91,24 +93,29 @@
   </div>
 
   <!-- ============================================================================== -->
-  <!-- GŁÓWNA APLIKACJA -->
+  <!-- MODUŁ: GŁÓWNA APLIKACJA (#appSection) -->
   <!-- ============================================================================== -->
   <div id="appSection" style="display: none;">
     <main class="container my-2" style="max-width: 520px;">
       
-      <!-- PULPIT GŁÓWNY -->
+      <!-- ============================================================================== -->
+      <!-- MODUŁ: WIDOK 0 - PULPIT GŁÓWNY (#tab-dashboard) -->
+      <!-- ============================================================================== -->
       <section id="tab-dashboard" class="app-tab dashboard-container">
+        
+        <!-- Nagłówek Pulpitu: Awatar + Powitanie z odliczaniem pod spodem | Prawa strona: Data i Dzień -->
         <div class="d-flex justify-content-between align-items-center my-2 px-2">
           <div class="d-flex align-items-center">
             <img id="dashboardUserAvatar" src="" class="rounded-circle me-2" style="width: 44px; height: 44px; object-fit: cover; border: 2px solid var(--navy); background-color: #E2E8F0;" alt="Avatar">
             <div>
-              <h5 class="fw-bold mb-0" style="color: var(--navy);">Ahoj, <span id="welcomeUserName"></span>!</h5>
-              <small class="text-muted" style="font-size: 11px;">Stará Lesná / Tatranská Lomnica</small>
+              <h5 class="fw-bold mb-0" style="color: var(--navy); line-height: 1.1;">Ahoj, <span id="welcomeUserName"></span>!</h5>
+              <div id="dashboardCountdownSub" class="fw-bold text-primary mt-1" style="font-size: 0.78rem;"></div>
             </div>
           </div>
-          <div class="text-end" id="dashboardDateBox" style="font-size: 0.82rem; line-height: 1.2;"></div>
+          <div class="text-end" id="dashboardDateBox" style="font-size: 0.85rem; line-height: 1.25;"></div>
         </div>
 
+        <!-- Kafelki Nawigacyjne -->
         <div class="row g-2 mt-1">
           <div class="col-6">
             <div class="card dashboard-card shadow-sm h-100" onclick="switchTab('tab-plan')">
@@ -187,6 +194,7 @@
           </div>
         </div>
 
+        <!-- Baner Kroniki -->
         <div class="col-12 mt-2">
           <div class="card py-2 px-3 text-center border shadow-sm rounded-4" 
                style="cursor: pointer; background: rgba(255,255,255,0.95);" 
@@ -197,7 +205,9 @@
         </div>
       </section>
 
-      <!-- MODUŁ WYDATKÓW -->
+      <!-- ============================================================================== -->
+      <!-- MODUŁ: WIDOK 3 - WYDATKI (#tab-costs) -->
+      <!-- ============================================================================== -->
       <section id="tab-costs" class="app-tab" style="display: none;">
         <div class="d-flex align-items-center justify-content-between mb-3">
           <h4 class="fw-bold mb-0" style="color: var(--navy);">💸 Wydatki</h4>
@@ -284,7 +294,7 @@
         <div id="costsList" class="mb-3"></div>
       </section>
 
-      <!-- POZOSTAŁE SEKCJE WIDOKÓW -->
+      <!-- POZOSTAŁE SEKCJE WIDOKÓW (DO ROZBUDOWY W KOLEJNYCH ETAPACH) -->
       <section id="tab-plan" class="app-tab" style="display: none;"></section>
       <section id="tab-weather" class="app-tab" style="display: none;"></section>
       <section id="tab-wallet" class="app-tab" style="display: none;"></section>
@@ -297,11 +307,13 @@
     </main>
   </div>
 
-  <!-- Stopka widoczna zawsze: lewa data, środek autor z linkiem, prawa lokalizacja z linkiem -->
+  <!-- ============================================================================== -->
+  <!-- MODUŁ: STOPKA (FOOTER) - WIDOCZNA ZAWSZE -->
+  <!-- ============================================================================== -->
   <footer class="footer-fixed d-flex justify-content-between align-items-center">
     <div class="text-start">06-13.02.2027 r.</div>
     <div class="text-center">
-      <a href="https://github.com/JBPakula" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-muted">@jbpakula </a>&reg 
+      <a href="https://github.com/JBPakula" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-muted">@jbpakula</a> &reg;
     </div>
     <div class="text-end">
       <a href="https://www.google.com/maps/place//data=!4m2!3m1!1s0x473e230169a486f7:0x57fa63f0d4f3d746?sa=X&ved=1t:8290&ictx=111" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-muted">

@@ -1,3 +1,6 @@
+/* ============================================================================== */
+/* MODUŁ: ZMIENNE GLOBALNE I BAZA STYLÓW */
+/* ============================================================================== */
 :root {
   --navy: #0F172A;
   --navy-light: #1E293B;
@@ -37,6 +40,9 @@ html, body {
   object-fit: contain;
 }
 
+/* ============================================================================== */
+/* MODUŁ: STOPKA (FOOTER) */
+/* ============================================================================== */
 .footer-fixed {
   position: fixed;
   left: 0;
@@ -55,7 +61,39 @@ html, body {
 }
 
 /* ============================================================================== */
-/* DASHBOARD & KARTY */
+/* MODUŁ: ANIMACJA SPLASH I LOGOWANIE */
+/* ============================================================================== */
+#splashLogoWrapper {
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.splash-centered {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  max-width: 260px;
+  z-index: 1050;
+}
+
+.splash-bottom {
+  position: static !important;
+  transform: none !important;
+  width: 100% !important;
+  margin-top: 10px;
+}
+
+.splash-bottom img {
+  max-height: 140px !important;
+  transition: max-height 0.4s ease;
+}
+
+/* ============================================================================== */
+/* MODUŁ: KONTENER DASHBOARDU Z PŁYNNYM PRZEJŚCIEM TŁA */
 /* ============================================================================== */
 .dashboard-container {
   position: relative;
@@ -69,17 +107,19 @@ html, body {
   box-sizing: border-box;
   border: 1px solid var(--border-subtle);
 
+  /* Płynne wtapianie krawędzi: góra w 100% biała, łagodne przejście bez ostrej linii zdjęcia */
   background-image: 
       linear-gradient(
           to bottom,
           #FFFFFF 0%,
           #FFFFFF 45%,
-          rgba(255, 255, 255, 0.82) 65%,
-          rgba(255, 255, 255, 0.2) 80%,
-          rgba(255, 255, 255, 0) 100%
+          rgba(255, 255, 255, 0.95) 55%,
+          rgba(255, 255, 255, 0.70) 65%,
+          rgba(255, 255, 255, 0.20) 75%,
+          rgba(255, 255, 255, 0) 85%
       ),
       url('../assets/landscape.jpg');
-  background-position: top center, bottom center;
+  background-position: top center, center bottom;
   background-size: 100% 100%, 100% auto;
   background-repeat: no-repeat, no-repeat;
 }
@@ -126,36 +166,4 @@ html, body {
   border-left: 5px solid #F59E0B;
   padding: 12px 14px;
   margin-bottom: 10px;
-}
-
-/* ============================================================================== */
-/* MODUŁ: ANIMACJA SPLASH I LOGOWANIE */
-/* ============================================================================== */
-#splashLogoWrapper {
-  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.splash-centered {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 80%;
-  max-width: 260px;
-  z-index: 1050;
-}
-
-.splash-bottom {
-  position: static !important;
-  transform: none !important;
-  width: 100% !important;
-  margin-top: 10px;
-}
-
-.splash-bottom img {
-  max-height: 140px !important;
-  transition: max-height 0.4s ease;
 }
