@@ -20,14 +20,14 @@ let malzenstwaMapa = {};
 let ekipyMapa = {};
 
 // ==============================================================================
-// 0.1 INICJALIZACJA I OBSŁUGA SPLASH
+// 0.1 INICJALIZACJA
 // ==============================================================================
 function initApp() {
   const savedUser = localStorage.getItem("zimowisko_user");
   const savedUserId = localStorage.getItem("zimowisko_user_id");
   const savedTeam = localStorage.getItem("zimowisko_team");
 
-  // Jeśli użytkownik jest już zalogowany w pamięci przeglądarki
+  // Jeśli użytkownik jest już zalogowany w przeglądarce
   if (savedUser && savedUserId) {
     currentUser = savedUser;
     currentUserId = parseInt(savedUserId);
@@ -39,26 +39,13 @@ function initApp() {
     return;
   }
 
-  // Uruchomienie animacji splash i przejścia do logowania
-  startSplashSequence();
+  // Niezalogowany: formularz logowania jest widoczny natychmiast
+  document.getElementById("authScreen").style.display = "block";
+  document.getElementById("appSection").style.display = "none";
+  document.getElementById("loginFormCard").style.display = "block";
 
-  // Pobieranie danych w tle
   pobierzKursyWalut();
   pobierzUzytkownikowIMalzenstwa();
-}
-
-function startSplashSequence() {
-  const logoWrapper = document.getElementById("splashLogoWrapper");
-  const loginCard = document.getElementById("loginFormCard");
-
-  if (!logoWrapper || !loginCard) return;
-
-  // Odliczamy dokładnie 1.5 sekundy, po czym odsłaniamy formularz i zsuwamy logo
-  setTimeout(() => {
-    logoWrapper.classList.remove("splash-centered");
-    logoWrapper.classList.add("splash-bottom");
-    loginCard.style.display = "block";
-  }, 1500);
 }
 
 // ==============================================================================
@@ -149,7 +136,6 @@ async function handleSetNewPassword() {
     return;
   }
 
-  // Weryfikacja kodu dostępu yeti
   if (accessCode.toLowerCase() !== "yeti") {
     if (feedback) {
       feedback.innerText = "Niepoprawny kod dostępu!";
@@ -218,7 +204,7 @@ function wejdzDoAplikacji() {
   if (authScreen) authScreen.style.display = "none";
   if (appSection) appSection.style.display = "block";
 
-  // W prawym rogu nagłówka: wyłącznie ikona wylogowania (bez imienia)
+  // W prawym górnym rogu nagłówka: sama ikona wylogowania
   const navRight = document.getElementById("navRightSection");
   if (navRight) {
     navRight.innerHTML = `
@@ -228,11 +214,11 @@ function wejdzDoAplikacji() {
     `;
   }
 
-  // Słowackie powitanie z imieniem
+  // Słowackie powitanie
   const welcomeEl = document.getElementById("welcomeUserName");
   if (welcomeEl) welcomeEl.innerText = currentUser;
 
-  // Ustawienie lokalnego awatara dla zalogowanej osoby
+  // Ustawienie awatara
   ustawAvatarUzytkownika(currentUser);
 
   renderDashboardDate();
@@ -240,7 +226,6 @@ function wejdzDoAplikacji() {
   switchTab(savedTab);
 }
 
-// Sprawdzenie i przypisanie awatara z assets/avatars/ z fallbackiem do kolejnych rozszerzeń
 function ustawAvatarUzytkownika(userName) {
   const avatarImg = document.getElementById("dashboardUserAvatar");
   if (!avatarImg || !userName) return;
@@ -254,22 +239,12 @@ function ustawAvatarUzytkownika(userName) {
     if (extIndex < extensions.length) {
       avatarImg.src = `${basePath}${extensions[extIndex]}`;
     } else {
-      // Jeśli brak pliku na dysku: neutralny placeholder z inicjałem
       avatarImg.onerror = null;
       avatarImg.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=0F172A&color=fff`;
     }
   };
 
-  // Próba załadowania pierwszego formatu (.png)
   avatarImg.src = `${basePath}${extensions[0]}`;
-}
-
-  const welcomeEl = document.getElementById("welcomeUserName");
-  if (welcomeEl) welcomeEl.innerText = currentUser;
-
-  renderDashboardDate();
-  const savedTab = localStorage.getItem("zimowisko_tab") || "dashboard";
-  switchTab(savedTab);
 }
 
 // ==============================================================================
@@ -495,9 +470,7 @@ if (formCost) {
   };
 }
 
-// ==============================================================================
-// URUCHOMIENIE
-// ==============================================================================
+// Inicjalizacja
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", initApp);
 } else {
