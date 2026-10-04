@@ -232,9 +232,51 @@ function wejdzDoAplikacji() {
   // Ustawienie awatara
   ustawAvatarUzytkownika(currentUser);
 
-  renderDashboardDate();
-  const savedTab = localStorage.getItem("zimowisko_tab") || "dashboard";
-  switchTab(savedTab);
+  // ==============================================================================
+// MODUŁ: ZEGAR, DATA I ODLICZANIE NA PULPICIE
+// ==============================================================================
+function renderDashboardDate() {
+  const dateBox = document.getElementById("dashboardDateBox");
+  const countdownSub = document.getElementById("dashboardCountdownSub");
+
+  const now = new Date();
+  const day = now.getDate();
+  const months = [
+    "stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca",
+    "lipca", "sierpnia", "września", "października", "listopada", "grudnia"
+  ];
+  const weekdays = [
+    "niedziela", "poniedziałek", "wtorek", "środa", "czwartek", "piątek", "sobota"
+  ];
+
+  // Wyjazd: 06.02.2027
+  const targetDate = new Date(2027, 1, 6);
+  const todayOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const diffTime = targetDate - todayOnly;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  let countdownText = "";
+  if (diffDays > 0) {
+    countdownText = `⏳ ${diffDays} dni do szusowania`;
+  } else if (diffDays === 0) {
+    countdownText = `⛷️ Dziś zaczynamy turnus!`;
+  } else {
+    countdownText = `🎿 Turnus w toku / wspomnienia`;
+  }
+
+  // Wpisanie odliczania pod imieniem
+  if (countdownSub) {
+    countdownSub.innerHTML = countdownText;
+  }
+
+  // Wpisanie samej daty i dnia tygodnia po prawej stronie
+  if (dateBox) {
+    dateBox.innerHTML = `
+      <div class="fw-bold text-dark">${day} ${months[now.getMonth()]}</div>
+      <div class="text-muted small">${weekdays[now.getDay()]}</div>
+    `;
+  }
+}
 }
 
 function ustawAvatarUzytkownika(userName) {
