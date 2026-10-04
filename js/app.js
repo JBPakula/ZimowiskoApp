@@ -77,8 +77,12 @@ async function pobierzKursyWalut() {
 
 async function pobierzUzytkownikowIMalzenstwa() {
   try {
-    const { data } = await supabaseClient.from("users").select("id, login, team, spouse_id");
-    if (data) {
+    const { data, error } = await supabaseClient.from("users").select("id, login, team, spouse_id");
+    if (error) {
+      console.error("Błąd pobierania użytkowników z Supabase:", error);
+      return;
+    }
+    if (data && data.length > 0) {
       const idToLogin = {};
       data.forEach(u => {
         idToLogin[u.id] = u.login;
@@ -89,14 +93,19 @@ async function pobierzUzytkownikowIMalzenstwa() {
           malzenstwaMapa[u.login] = idToLogin[u.spouse_id];
         }
       });
-      const me = data.find(u => u.login === currentUser);
-      if (me) currentUserId = me.id;
+
+      // Dopasowujemy bieżące ID użytkownika bezpośrednio z tabeli users w bazie
+      const me = data.find(u => u.login.toLowerCase() === currentUser.toLowerCase());
+      if (me) {
+        currentUserId = me.id;
+        currentTeam = me.team;
+      }
+      console.log(`Zalogowano jako: ${currentUser} | ID w bazie: ${currentUserId} | Ekipa: ${currentTeam}`);
     }
   } catch (err) {
-    console.error("Błąd pobierania użytkowników:", err);
+    console.error("Krytyczny błąd pobierania użytkowników:", err);
   }
 }
-
 // ==============================================================================
 // 0.2 NAWIGACJA (SWITCHTAB) I ODROCZONE ODLICZANIE
 // ==============================================================================
@@ -185,20 +194,29 @@ const formDailyLog = document.getElementById("formDailyLog");
 if (formDailyLog) {
   formDailyLog.onsubmit = async (e) => {
     e.preventDefault();
-    if (!supabaseClient) return alert("Podłącz Supabase w js/app.js!");
+    if (!supabaseClient) {
+      alert("Brak połączenia z bazą! Upewnij się, że SUPABASE_URL i SUPABASE_KEY są uzupełnione w js/app.js.");
+      return;
+    }
 
     const dDate = document.getElementById("dailyLogDate").value;
     const dResort = document.getElementById("dailyLogResort").value;
     const dWeather = document.getElementById("dailyLogWeather").value.trim();
     const dNotes = document.getElementById("dailyLogNotes").value.trim();
 
-    await supabaseClient.from("daily_logs").insert({
+    const { data, error } = await supabaseClient.from("daily_logs").insert([{
       trip_date: dDate,
       resort_name: dResort,
-      weather_note: dWeather,
-      notes: dNotes,
+      weather_note: dWeather || null,
+      notes: dNotes || null,
       created_by: currentUserId
-    });
+    }]).select();
+
+    if (error) {
+      console.error("Błąd zapisu do daily_logs:", error);
+      alert("Błąd zapisu: " + (error.message || JSON.stringify(error)));
+      return;
+    }
 
     formDailyLog.reset();
     loadDailyLogs();
