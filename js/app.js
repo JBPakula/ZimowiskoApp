@@ -314,12 +314,17 @@ function renderDashboardDate() {
   const todayOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const diffDays = Math.ceil((targetDate - todayOnly) / (1000 * 60 * 60 * 24));
 
-  // 1. Odliczanie z zielonym akcentem pod imieniem (po lewej)
+  // 1. Odliczanie z dedykowaną ikonką odliczania pod imieniem
   if (countdownSub) {
-    countdownSub.innerHTML = `<span class="countdown-badge">⏳ ${diffDays} dni do szusowania</span>`;
+    countdownSub.innerHTML = `
+      <span class="countdown-badge d-inline-flex align-items-center">
+        <img src="assets/icons/odliczanie.png" alt="Odliczanie" class="countdown-icon-inline me-1" onerror="this.onerror=null; this.src='assets/icons/odliczanie.jpg';">
+        ${diffDays} dni do szusowania
+      </span>
+    `;
   }
 
-  // 2. Data i dzień tygodnia (po prawej)
+  // 2. Data i dzień tygodnia po prawej stronie
   if (dateBox) {
     dateBox.innerHTML = `
       <div class="fw-bold text-dark">${day} ${months[now.getMonth()]}</div>

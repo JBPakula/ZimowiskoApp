@@ -230,3 +230,20 @@ html, body {
   margin-top: 1px;
   line-height: 1.05;
 }
+
+/* ============================================================================== */
+/* MODUŁ: MINI IKONY INLINE (ODLICZANIE I NARCIARZ W STOPCE) */
+/* ============================================================================== */
+.countdown-icon-inline {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+  vertical-align: -1px;
+}
+
+.footer-skier-icon {
+  height: 18px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
