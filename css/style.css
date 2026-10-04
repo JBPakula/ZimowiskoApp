@@ -55,13 +55,10 @@ html, body {
 }
 
 /* ============================================================================== */
-/* ANIMACJA SPLASH I LOGOWANIA */
+/* SPLASH & LOGOWANIE */
 /* ============================================================================== */
 #splashLogoWrapper {
-  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  transition: all 0.5s ease-in-out;
 }
 
 .splash-centered {
@@ -70,16 +67,20 @@ html, body {
   left: 50%;
   transform: translate(-50%, -50%);
   width: 80%;
-  max-width: 280px;
+  max-width: 260px;
   z-index: 1050;
 }
 
 .splash-bottom {
-  position: static;
-  transform: none;
-  width: 60%;
-  max-width: 190px;
+  position: static !important;
+  transform: none !important;
+  width: 100% !important;
   margin-top: 10px;
+}
+
+.splash-bottom img {
+  max-height: 140px !important;
+  transition: max-height 0.4s ease;
 }
 
 /* ============================================================================== */
@@ -154,30 +155,4 @@ html, body {
   border-left: 5px solid #F59E0B;
   padding: 12px 14px;
   margin-bottom: 10px;
-}
-
-/* Animacja płynnego przejścia Splash -> Logowanie */
-#splashLogoWrapper {
-  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.splash-centered {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 75%;
-  max-width: 260px;
-  z-index: 1050;
-}
-
-.splash-bottom {
-  position: static;
-  transform: none;
-  width: 55%;
-  max-width: 180px;
-  margin-top: 15px;
 }
