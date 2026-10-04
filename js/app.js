@@ -1,22 +1,17 @@
 // js/app.js
-
-
-
 // ==============================================================================
 // 0. KONFIGURACJA SUPABASE I ZMIENNE GLOBALNE
 // ==============================================================================
 const SUPABASE_URL = "https://hxytdcsmaegoffkwdprd.supabase.co";
 const SUPABASE_KEY = "sb_publishable_Iqua1-hPT4hzINjAD3ta0w_HPn-fhLv";
 
-// Bezpośrednia inicjalizacja klienta Supabase
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const ALL_TEAMS = ["Pakuły", "Sileziny", "Śnieżyńscy"];
 
-// Bieżący użytkownik (ekran logowania wyłączony)
-let currentUser = "Asia";
-let currentUserId = 1;
-let currentTeam = "Pakuły";
+let currentUser = null;
+let currentUserId = null;
+let currentTeam = null;
 
 let bazaKursow = {
   "EUR_PLN": 4.30, "PLN_EUR": 0.2325,
@@ -26,139 +21,232 @@ let malzenstwaMapa = {};
 let ekipyMapa = {};
 
 // ==============================================================================
-// 0.1 INICJALIZACJA APLIKACJI
+// 0.1 INICJALIZACJA APLIKACJI & OBSŁUGA SPLASH
 // ==============================================================================
 async function initApp() {
   await pobierzKursyWalut();
-  if (supabaseClient) {
-    await pobierzUzytkownikowIMalzenstwa();
-  } else {
-    // Dane zastępcze offline
-    ekipyMapa = {
-      "Asia": "Pakuły", "Maciek": "Pakuły", "Kacper": "Pakuły", "Natalia": "Pakuły",
-      "Gosia": "Sileziny", "Artur": "Sileziny", "Pola": "Sileziny", "Tosia": "Sileziny",
-      "Kasia": "Śnieżyńscy", "Janek": "Śnieżyńscy", "Henio": "Śnieżyńscy"
-    };
-    malzenstwaMapa = {
-      "Asia": "Maciek", "Maciek": "Asia",
-      "Gosia": "Artur", "Artur": "Gosia",
-      "Kasia": "Janek", "Janek": "Kasia"
-    };
-  }
+  await pobierzUzytkownikowIMalzenstwa();
 
-  // Wymuszenie bezpośredniego wejścia do aplikacji (login zakomentowany)
-  document.getElementById("appSection").style.display = "block";
-  renderDashboardDate();
-  setupEventListeners();
+  // Sprawdzamy czy w localStorage jest zapisana aktywna sesja
+  const savedUser = localStorage.getItem("zimowisko_user");
+  const savedUserId = localStorage.getItem("zimowisko_user_id");
+  const savedTeam = localStorage.getItem("zimowisko_team");
 
-  const savedTab = localStorage.getItem("zimowisko_tab") || "dashboard";
-  switchTab(savedTab);
-}
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initApp);
-} else {
-  initApp();
-}
-
-async function pobierzKursyWalut() {
-  try {
-    const res = await fetch("https://api.frankfurter.app/latest?from=EUR&to=PLN");
-    const dane = await res.json();
-    if (dane && dane.rates && dane.rates.PLN) {
-      const eurPln = dane.rates.PLN;
-      bazaKursow["EUR_PLN"] = eurPln;
-      bazaKursow["PLN_EUR"] = 1 / eurPln;
-    }
-  } catch (e) {
-    console.warn("Używam kursu domyślnego EUR/PLN:", e);
-  }
-}
-
-async function pobierzUzytkownikowIMalzenstwa() {
-  try {
-    const { data, error } = await supabaseClient.from("users").select("id, login, team, spouse_id");
-    if (error) {
-      console.error("Błąd pobierania użytkowników z Supabase:", error);
-      return;
-    }
-    if (data && data.length > 0) {
-      const idToLogin = {};
-      data.forEach(u => {
-        idToLogin[u.id] = u.login;
-        ekipyMapa[u.login] = u.team || "Pakuły";
-      });
-      data.forEach(u => {
-        if (u.spouse_id && idToLogin[u.spouse_id]) {
-          malzenstwaMapa[u.login] = idToLogin[u.spouse_id];
-        }
-      });
-
-      // Dopasowujemy bieżące ID użytkownika bezpośrednio z tabeli users w bazie
-      const me = data.find(u => u.login.toLowerCase() === currentUser.toLowerCase());
-      if (me) {
-        currentUserId = me.id;
-        currentTeam = me.team;
-      }
-      console.log(`Zalogowano jako: ${currentUser} | ID w bazie: ${currentUserId} | Ekipa: ${currentTeam}`);
-    }
-  } catch (err) {
-    console.error("Krytyczny błąd pobierania użytkowników:", err);
-  }
-}
-// ==============================================================================
-// 0.2 NAWIGACJA (SWITCHTAB) I ODROCZONE ODLICZANIE
-// ==============================================================================
-function renderDashboardDate() {
-  const container = document.getElementById("dashboardDateBox");
-  if (!container) return;
-
-  const now = new Date();
-  const day = now.getDate();
-  const months = ["stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca", "lipca", "sierpnia", "września", "października", "listopada", "grudnia"];
-  const weekdays = ["niedziela", "poniedziałek", "wtorek", "środa", "czwartek", "piątek", "sobota"];
-
-  // Wyjazd: 06.02.2027
-  const targetDate = new Date(2027, 1, 6);
-  const todayOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const diffDays = Math.ceil((targetDate - todayOnly) / (1000 * 60 * 60 * 24));
-
-  container.innerHTML = `
-    <div class="fw-bold text-dark">${day} ${months[now.getMonth()]}</div>
-    <div class="text-muted small">${weekdays[now.getDay()]}</div>
-    <div class="fw-bold text-primary mt-1" style="font-size: 0.78rem;">⏳ ${diffDays} dni do szusowania</div>
-  `;
-}
-
-function switchTab(tabId) {
-  if (!tabId) tabId = "dashboard";
-  const tabs = document.querySelectorAll(".app-tab");
-  tabs.forEach(t => t.style.display = "none");
-
-  const dash = document.getElementById("tab-dashboard");
-
-  if (tabId === "dashboard" || tabId === "tab-dashboard") {
-    if (dash) dash.style.display = "block";
-    localStorage.setItem("zimowisko_tab", "dashboard");
+  if (savedUser && savedUserId) {
+    currentUser = savedUser;
+    currentUserId = parseInt(savedUserId);
+    currentTeam = savedTeam;
+    wejdzDoAplikacji();
     return;
   }
 
-  let targetEl = document.getElementById(tabId) || document.getElementById("tab-" + tabId.replace("tab-", ""));
-  if (targetEl) {
-    targetEl.style.display = "block";
-    localStorage.setItem("zimowisko_tab", targetEl.id);
+  // Brak aktywnej sesji -> animacja Splash i odsłonięcie formularza logowania
+  startSplashAnimation();
+}
 
-    if (targetEl.id === "tab-plan") loadDailyLogs();
-    if (targetEl.id === "tab-costs") loadCosts();
-    if (targetEl.id === "tab-wallet") loadWallet();
-    if (targetEl.id === "tab-shopping") loadShoppingLists();
-    if (targetEl.id === "tab-forum") loadForum();
-    if (targetEl.id === "tab-diary") loadDiary();
-    if (targetEl.id === "tab-games") loadGames();
-    if (targetEl.id === "tab-exchange") przeliczKantor();
+function startSplashAnimation() {
+  const logoWrapper = document.getElementById("splashLogoWrapper");
+  const loginCard = document.getElementById("loginFormCard");
+
+  // Logo na środku przez 1.8 sekundy, po czym zjeżdża w dół
+  setTimeout(() => {
+    if (logoWrapper) {
+      logoWrapper.classList.remove("splash-centered");
+      logoWrapper.classList.add("splash-bottom");
+    }
+    if (loginCard) {
+      setTimeout(() => {
+        loginCard.style.display = "block";
+      }, 300);
+    }
+  }, 1800);
+}
+
+// ==============================================================================
+// 0.2 LOGOWANIE I ZMIANA HASŁA (KOD DOSTĘPU: yeti)
+// ==============================================================================
+async function handleLogin() {
+  const loginInput = document.getElementById("loginUsername").value.trim();
+  const passInput = document.getElementById("loginPassword").value.trim();
+  const feedback = document.getElementById("loginFeedback");
+
+  if (feedback) feedback.style.display = "none";
+
+  if (!loginInput || !passInput) {
+    pokazBladLogowania("Wpisz imię oraz hasło.");
+    return;
+  }
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("users")
+      .select("id, login, passcode, team")
+      .ilike("login", loginInput)
+      .maybeSingle();
+
+    if (error || !data) {
+      pokazBladLogowania("Nie znaleziono takiego użytkownika.");
+      return;
+    }
+
+    if (data.passcode !== passInput) {
+      pokazBladLogowania("Nieprawidłowe hasło.");
+      return;
+    }
+
+    // Pomyślna autoryzacja
+    currentUser = data.login;
+    currentUserId = data.id;
+    currentTeam = data.team;
+
+    localStorage.setItem("zimowisko_user", currentUser);
+    localStorage.setItem("zimowisko_user_id", currentUserId);
+    localStorage.setItem("zimowisko_team", currentTeam);
+
+    wejdzDoAplikacji();
+
+  } catch (err) {
+    console.error("Błąd połączenia podczas logowania:", err);
+    pokazBladLogowania("Błąd połączenia z bazą danych.");
   }
 }
 
+function pokazBladLogowania(msg) {
+  const feedback = document.getElementById("loginFeedback");
+  if (feedback) {
+    feedback.innerText = msg;
+    feedback.style.display = "block";
+  }
+}
+
+function showResetPasswordView() {
+  const loginCard = document.getElementById("loginFormCard");
+  const resetCard = document.getElementById("resetPasswordCard");
+  const resetFeedback = document.getElementById("resetFeedback");
+
+  if (loginCard) loginCard.style.display = "none";
+  if (resetCard) resetCard.style.display = "block";
+  if (resetFeedback) resetFeedback.style.display = "none";
+}
+
+function showLoginView() {
+  const loginCard = document.getElementById("loginFormCard");
+  const resetCard = document.getElementById("resetPasswordCard");
+  const loginFeedback = document.getElementById("loginFeedback");
+
+  if (resetCard) resetCard.style.display = "none";
+  if (loginCard) loginCard.style.display = "block";
+  if (loginFeedback) loginFeedback.style.display = "none";
+}
+
+async function handleSetNewPassword() {
+  const loginInput = document.getElementById("resetUsername").value.trim();
+  const newPass = document.getElementById("resetNewPassword").value.trim();
+  const accessCode = document.getElementById("resetAccessCode").value.trim();
+  const feedback = document.getElementById("resetFeedback");
+
+  if (feedback) {
+    feedback.style.display = "none";
+    feedback.className = "alert alert-danger small mt-3 py-2 text-center";
+  }
+
+  if (!loginInput || !newPass || !accessCode) {
+    if (feedback) {
+      feedback.innerText = "Uzupełnij wszystkie pola.";
+      feedback.style.display = "block";
+    }
+    return;
+  }
+
+  // Weryfikacja kodu dostępu yeti
+  if (accessCode.toLowerCase() !== "yeti") {
+    if (feedback) {
+      feedback.innerText = "Niepoprawny kod dostępu!";
+      feedback.style.display = "block";
+    }
+    return;
+  }
+
+  try {
+    const { data: user, error: findError } = await supabaseClient
+      .from("users")
+      .select("id, login")
+      .ilike("login", loginInput)
+      .maybeSingle();
+
+    if (findError || !user) {
+      if (feedback) {
+        feedback.innerText = "Nie znaleziono użytkownika: " + loginInput;
+        feedback.style.display = "block";
+      }
+      return;
+    }
+
+    const { error: updateError } = await supabaseClient
+      .from("users")
+      .update({ passcode: newPass })
+      .eq("id", user.id);
+
+    if (updateError) {
+      if (feedback) {
+        feedback.innerText = "Błąd zapisu nowego hasła: " + updateError.message;
+        feedback.style.display = "block";
+      }
+      return;
+    }
+
+    alert("Hasło zostało pomyślnie zmienione! Zaloguj się nowym hasłem.");
+    showLoginView();
+    const loginUserField = document.getElementById("loginUsername");
+    const loginPassField = document.getElementById("loginPassword");
+    if (loginUserField) loginUserField.value = user.login;
+    if (loginPassField) loginPassField.value = "";
+
+  } catch (err) {
+    console.error("Błąd zapisu hasła:", err);
+    if (feedback) {
+      feedback.innerText = "Błąd połączenia z bazą danych.";
+      feedback.style.display = "block";
+    }
+  }
+}
+
+function handleLogout() {
+  localStorage.removeItem("zimowisko_user");
+  localStorage.removeItem("zimowisko_user_id");
+  localStorage.removeItem("zimowisko_team");
+  localStorage.removeItem("zimowisko_tab");
+  currentUser = null;
+  currentUserId = null;
+  currentTeam = null;
+
+  location.reload();
+}
+
+function wejdzDoAplikacji() {
+  const authScreen = document.getElementById("authScreen");
+  const appSection = document.getElementById("appSection");
+  if (authScreen) authScreen.style.display = "none";
+  if (appSection) appSection.style.display = "block";
+
+  // W prawym górnym rogu nagłówka pojawia się przycisk Wyloguj
+  const navRight = document.getElementById("navRightSection");
+  if (navRight) {
+    navRight.innerHTML = `
+      <span class="badge bg-light text-dark border me-1">${currentUser}</span>
+      <button class="btn btn-outline-danger btn-sm py-1 px-2" onclick="handleLogout()" title="Wyloguj się">
+        <i class="bi bi-box-arrow-right"></i> Wyloguj
+      </button>
+    `;
+  }
+
+  const welcomeEl = document.getElementById("welcomeUserName");
+  if (welcomeEl) welcomeEl.innerText = currentUser;
+
+  renderDashboardDate();
+  const savedTab = localStorage.getItem("zimowisko_tab") || "dashboard";
+  switchTab(savedTab);
+}
 // ==============================================================================
 // 1. MODUŁ: PLAN DNIA & ZAPISKI ZE STOKU
 // ==============================================================================
